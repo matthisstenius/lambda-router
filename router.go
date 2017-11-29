@@ -2,18 +2,21 @@ package lambdaRouter
 
 import (
 	"errors"
-	"encoding/json"
 )
 
 type Router struct {
 	routes map[string]map[string]interface{}
 	request Request
 }
-func New(routes map[string]map[string]interface{}, request Request) *Router {
+func New(routes map[string]map[string]interface{}, event interface{}) *Router {
+	request := Request{
+		resource: event.(map[string]interface{})["resource"].(string),
+		method: event.(map[string]interface{})["httpMethod"].(string),
+	}
 	return &Router{routes: routes, request: request}
 }
 
-func (r Router) Invoke() (string, error) {
+func (r Router) Invoke() (interface{}, error) {
 	handler, ok := r.routes[r.request.resource][r.request.method]
 
 	if !ok {
@@ -21,11 +24,6 @@ func (r Router) Invoke() (string, error) {
 	}
 
 	data := handler.(func() interface{})()
-	encoded, err := json.Marshal(data)
 
-	if err != nil {
-		return "", errors.New("invalid response data")
-	}
-
-	return string(encoded), nil
+	return data, nil
 }
