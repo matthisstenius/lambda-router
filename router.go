@@ -16,14 +16,14 @@ func New(routes map[string]map[string]interface{}, event interface{}) *Router {
 	return &Router{routes: routes, request: request}
 }
 
-func (r Router) Invoke() (interface{}, error) {
+func (r Router) Invoke() (Response, error) {
 	handler, ok := r.routes[r.request.resource][r.request.method]
 
+	var response Response
 	if !ok {
-		return "", errors.New("handler func missing")
+		return response, errors.New("handler func missing")
 	}
 
-	data := handler.(func() interface{})()
-
-	return data, nil
+	response = handler.(func() Response)()
+	return response, nil
 }
