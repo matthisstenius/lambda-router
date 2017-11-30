@@ -1,4 +1,4 @@
-package lambdaRouter
+package api
 
 type Response struct {
 	StatusCode int
