@@ -5,10 +5,10 @@ import (
 )
 
 type Router struct {
-	routes map[string]map[string]interface{}
+	routes map[string]map[string]func()Response
 	request Request
 }
-func New(routes map[string]map[string]interface{}, event interface{}) *Router {
+func New(routes map[string]map[string]func()Response, event interface{}) *Router {
 	request := Request{
 		resource: event.(map[string]interface{})["resource"].(string),
 		method: event.(map[string]interface{})["httpMethod"].(string),
@@ -24,6 +24,6 @@ func (r Router) Invoke() (Response, error) {
 		return response, errors.New("handler func missing")
 	}
 
-	response = handler.(func() Response)()
+	response = handler()
 	return response, nil
 }
