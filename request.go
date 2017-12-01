@@ -10,10 +10,6 @@ type Request struct {
 	routes map[string]map[string]func(i Input)Response
 }
 
-type Input struct {
-
-}
-
 func NewRequest(event interface{}, routes map[string]map[string]func(i Input)Response) Request {
 	return Request{
 		resource: event.(map[string]interface{})["resource"].(string),
