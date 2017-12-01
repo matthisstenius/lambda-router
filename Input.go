@@ -14,7 +14,11 @@ func (i Input) GetPathParam(param string) string {
 	if !ok {
 		return ""
 	}
-	return params.(map[string]string)[param]
+	value, ok := params.(map[string]interface{})[param]
+	if !ok {
+		return ""
+	}
+	return value.(string)
 }
 
 func (i Input) GetQueryParam(param string) string {
@@ -22,8 +26,13 @@ func (i Input) GetQueryParam(param string) string {
 	if !ok {
 		return ""
 	}
-	return params.(map[string]string)[param]
-}
+
+	value, ok := params.(map[string]interface{})[param]
+	if !ok {
+		return ""
+	}
+	return value.(string)
+}}
 
 func (i Input) PopulateBody(out interface{}) error {
 	body, ok := i.event["body"]
