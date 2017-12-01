@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gobuffalo/tags"
 )
 
 type Input struct {
