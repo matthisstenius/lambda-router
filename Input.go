@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"github.com/gobuffalo/tags"
 )
 
 type Input struct {
@@ -47,4 +48,8 @@ func (i Input) PopulateBody(out interface{}) error {
 	}
 
 	return nil
+}
+
+func (i Input) Body() string {
+	return i.event["body"].(string)
 }
