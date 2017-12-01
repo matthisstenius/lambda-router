@@ -41,7 +41,7 @@ func (i Input) PopulateBody(out interface{}) error {
 		return errors.New("missing request body")
 	}
 
-	err := json.Unmarshal([]byte(body.(string)), out)
+	err := json.Unmarshal([]byte(body.(string)), &out)
 	if err != nil {
 		return errors.New("could not parse body as JSON")
 	}

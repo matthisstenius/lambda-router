@@ -7,6 +7,7 @@ import (
 type Request struct {
 	resource string
 	method string
+	event map[string]interface{}
 	routes map[string]map[string]func(i Input)Response
 }
 
@@ -14,6 +15,7 @@ func NewRequest(event interface{}, routes map[string]map[string]func(i Input)Res
 	return Request{
 		resource: event.(map[string]interface{})["resource"].(string),
 		method: event.(map[string]interface{})["httpMethod"].(string),
+		event: event.(map[string]interface{}),
 		routes: routes,
 	}
 }
@@ -26,6 +28,6 @@ func (r Request) Invoke() (Response, error) {
 		return response, errors.New("handler func missing")
 	}
 
-	response = handler(Input{})
+	response = handler(Input{event: r.event})
 	return response, nil
 }
