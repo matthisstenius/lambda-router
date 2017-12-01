@@ -32,7 +32,7 @@ func (i Input) GetQueryParam(param string) string {
 		return ""
 	}
 	return value.(string)
-}}
+}
 
 func (i Input) PopulateBody(out interface{}) error {
 	body, ok := i.event["body"]
