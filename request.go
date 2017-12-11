@@ -26,7 +26,7 @@ func (r Request) Invoke() (Response, error) {
 	resource := r.resource
 	pathParams, ok := r.event["pathParameters"]
 
-	if ok || pathParams != nil {
+	if ok && pathParams != nil {
 		for k, v := range pathParams.(map[string]interface{}) {
 			resource = strings.Replace(resource, v.(string), fmt.Sprintf("{%s}", k), 1)
 		}
