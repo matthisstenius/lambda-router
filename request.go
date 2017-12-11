@@ -24,10 +24,12 @@ func NewRequest(event interface{}, routes map[string]map[string]func(i Input) Re
 
 func (r Request) Invoke() (Response, error) {
 	resource := r.resource
-	pathParams := r.event["pathParameters"].(map[string]interface{})
-	
-	for k, v := range pathParams {
-		resource = strings.Replace(resource, v.(string), fmt.Sprintf("{%s}", k), 1)
+	pathParams, ok := r.event["pathParameters"]
+
+	if ok || pathParams != nil {
+		for k, v := range pathParams.(map[string]interface{}) {
+			resource = strings.Replace(resource, v.(string), fmt.Sprintf("{%s}", k), 1)
+		}
 	}
 
 	handler, ok := r.routes[resource][r.method]

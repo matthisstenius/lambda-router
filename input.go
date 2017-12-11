@@ -11,7 +11,7 @@ type Input struct {
 
 func (i Input) GetPathParam(param string) string {
 	params, ok := i.event["pathParameters"]
-	if !ok {
+	if !ok || params == nil {
 		return ""
 	}
 	value, ok := params.(map[string]interface{})[param]
@@ -23,7 +23,7 @@ func (i Input) GetPathParam(param string) string {
 
 func (i Input) GetQueryParam(param string) string {
 	params, ok := i.event["queryStringParameters"]
-	if !ok {
+	if !ok || params == nil {
 		return ""
 	}
 
@@ -37,7 +37,7 @@ func (i Input) GetQueryParam(param string) string {
 func (i Input) PopulateBody(out interface{}) error {
 	body, ok := i.event["body"]
 
-	if !ok {
+	if !ok || body == nil {
 		return errors.New("missing request body")
 	}
 
