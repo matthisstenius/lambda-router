@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 	"fmt"
+	"log"
 )
 
 type Request struct {
@@ -23,6 +24,7 @@ func NewRequest(event interface{}, routes map[string]map[string]func(i Input) Re
 }
 
 func (r Request) Invoke() (Response, error) {
+	log.Printf("Request event: %s", r.event)
 	resource := r.resource
 	pathParams, ok := r.event["pathParameters"]
 
