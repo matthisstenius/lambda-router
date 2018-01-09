@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"github.com/asaskevich/govalidator"
 )
 
 type Input struct {
@@ -42,11 +43,13 @@ func (i Input) PopulateBody(out interface{}) error {
 		return errors.New("missing request body")
 	}
 
-	err := json.Unmarshal([]byte(body.(string)), &out)
-	if err != nil {
+	if err := json.Unmarshal([]byte(body.(string)), &out); err != nil {
 		return errors.New("could not parse body as JSON")
 	}
 
+	if _, err := govalidator.ValidateStruct(out); err != nil {
+		return err
+	}
 	return nil
 }
 
