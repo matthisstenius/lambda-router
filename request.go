@@ -11,11 +11,11 @@ type Request struct {
 	resource string
 	method   string
 	event    map[string]interface{}
-	routes   map[string]map[string]func(i Input) Response
+	routes   map[string]map[string]func(i *Input) *Response
 }
 
-func NewRequest(event interface{}, routes map[string]map[string]func(i Input) Response) Request {
-	return Request{
+func NewRequest(event interface{}, routes map[string]map[string]func(i *Input) *Response) *Request {
+	return &Request{
 		resource: event.(map[string]interface{})["resource"].(string),
 		method:   event.(map[string]interface{})["httpMethod"].(string),
 		event:    event.(map[string]interface{}),
@@ -23,7 +23,7 @@ func NewRequest(event interface{}, routes map[string]map[string]func(i Input) Re
 	}
 }
 
-func (r Request) Invoke() (Response, error) {
+func (r *Request) Invoke() (*Response, error) {
 	log.Printf("Request event: %s", r.event)
 	resource := r.resource
 	pathParams, ok := r.event["pathParameters"]
@@ -38,9 +38,9 @@ func (r Request) Invoke() (Response, error) {
 
 	var response Response
 	if !ok {
-		return response, errors.New("handler func missing")
+		return &response, errors.New("handler func missing")
 	}
 
-	response = handler(Input{event: r.event})
-	return response, nil
+	response = *handler(&Input{event: r.event})
+	return &response, nil
 }

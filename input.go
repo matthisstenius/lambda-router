@@ -11,7 +11,7 @@ type Input struct {
 	event map[string]interface{}
 }
 
-func (i Input) GetPathParam(param string) string {
+func (i *Input) GetPathParam(param string) string {
 	params, ok := i.event["pathParameters"]
 	if !ok || params == nil {
 		return ""
@@ -23,7 +23,7 @@ func (i Input) GetPathParam(param string) string {
 	return value.(string)
 }
 
-func (i Input) GetQueryParam(param string) string {
+func (i *Input) GetQueryParam(param string) string {
 	params, ok := i.event["queryStringParameters"]
 	if !ok || params == nil {
 		return ""
@@ -36,7 +36,7 @@ func (i Input) GetQueryParam(param string) string {
 	return value.(string)
 }
 
-func (i Input) PopulateBody(out interface{}) error {
+func (i *Input) PopulateBody(out interface{}) error {
 	body, ok := i.event["body"]
 
 	if !ok || body == nil {
@@ -53,7 +53,7 @@ func (i Input) PopulateBody(out interface{}) error {
 	return nil
 }
 
-func (i Input) Body() string {
+func (i *Input) Body() string {
 	return i.event["body"].(string)
 }
 
@@ -61,7 +61,7 @@ type CurrentUser struct {
 	ID string `json:"id"`
 }
 
-func (i Input) CurrentUser() CurrentUser {
+func (i *Input) CurrentUser() *CurrentUser {
 	reqContext := i.event["requestContext"]
 
 	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
@@ -82,5 +82,5 @@ func (i Input) CurrentUser() CurrentUser {
 		log.Fatal("Input::CurrentUser Could not parse authData")
 	}
 
-	return CurrentUser{ID: parsed["data"]["id"]}
+	return &CurrentUser{ID: parsed["data"]["id"]}
 }
