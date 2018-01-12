@@ -13,7 +13,11 @@ type Response struct {
 }
 
 func NewResponse(status int, body interface{}) *Response {
-	encoded, _ := json.Marshal(map[string]interface{}{"data": body})
+	encoded, _ := json.Marshal(map[string]interface{}{
+		"code": status,
+		"data": body,
+	})
+
 	log.Printf("Response: %s", encoded)
 	return &Response{
 		StatusCode:      status,
@@ -24,7 +28,11 @@ func NewResponse(status int, body interface{}) *Response {
 }
 
 func NewErrorResponse(status int, error interface{}) *Response {
-	encoded, _ := json.Marshal(map[string]interface{}{"error": error})
+	encoded, _ := json.Marshal(map[string]interface{}{
+		"code": status,
+		"error": error,
+	})
+
 	log.Printf("Error response: %s", encoded)
 	return &Response{
 		StatusCode:      status,
