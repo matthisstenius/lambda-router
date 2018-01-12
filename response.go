@@ -22,3 +22,14 @@ func NewResponse(status int, body interface{}) *Response {
 		IsBase64Encoded: false,
 	}
 }
+
+func NewErrorResponse(status int, error interface{}) *Response {
+	encoded, _ := json.Marshal(map[string]interface{}{"error": error})
+	log.Printf("Error response: %s", encoded)
+	return &Response{
+		StatusCode:      status,
+		Body:            string(encoded),
+		Headers:         map[string]string{},
+		IsBase64Encoded: false,
+	}
+}
