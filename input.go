@@ -75,11 +75,11 @@ func (i *Input) CurrentUser() *CurrentUser {
         log.WithField("authData", authData).Fatal("Input::CurrentUser() authData index missing")
     }
 
-    var parsed map[string]map[string]string
+    var parsed map[string]map[string]interface{}
+    
     err := json.Unmarshal([]byte(authData.(string)), &parsed)
     if err != nil {
         log.WithField("error", err).Fatal("Input::CurrentUser() Could not parse authData")
     }
-
-    return &CurrentUser{ID: parsed["data"]["id"]}
+    return &CurrentUser{ID: parsed["data"]["id"].(string)}
 }
