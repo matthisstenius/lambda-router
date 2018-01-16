@@ -5,6 +5,7 @@ import (
     "strings"
     "fmt"
     "log"
+    "encoding/json"
 )
 
 type Request struct {
@@ -42,7 +43,13 @@ func (r *Request) Invoke() (*Response, error) {
     } else {
         record := r.event["Records"].([]map[string]interface{})[0]
         message := record["SNS"].(map[string]string)["Message"]
-        // TODO: Implement for SNS
+
+        var data map[string]interface{}
+        if err := json.Unmarshal([]byte(message), &data); err != nil {
+            return nil, errors.New("could not parse SNS Message")
+        }
+
+        handler, found = r.events[data["messageType"].(string)]
     }
 
     var response Response

@@ -54,6 +54,17 @@ func (i *Input) PopulateBody(out interface{}) error {
     return nil
 }
 
+// PopulateEventBody parse body in SNS event
+func (i *Input) PopulateEventBody(out interface{}) error {
+    record := i.event["Records"].([]map[string]interface{})[0]
+    message := record["SNS"].(map[string]string)["Message"]
+
+    if err := json.Unmarshal([]byte(message), &out); err != nil {
+        return errors.New("could not parse SNS Message")
+    }
+    return nil
+}
+
 func (i *Input) Body() string {
     return i.event["body"].(string)
 }
