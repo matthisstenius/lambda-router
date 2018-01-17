@@ -5,62 +5,86 @@ import (
     "strings"
     "fmt"
     "log"
-    "encoding/json"
 )
 
 type Request struct {
-    resource string
-    method   string
-    event    map[string]interface{}
-    routes   map[string]map[string]func(i *Input) *Response
-    events map[string]func(i *Input) *Response
+    resource      string
+    method        string
+    event         map[string]interface{}
+    handlerConfig *HandlerConfig
 }
 
-func NewRequest(event interface{}, routes map[string]map[string]func(i *Input) *Response, events map[string]func(i *Input) *Response) *Request {
+type HandlerConfig struct {
+    Http      map[string]map[string]func(i *Input) *Response
+    Scheduled map[string]func() *Response
+}
+
+func NewRequest(event interface{}, config *HandlerConfig) *Request {
+    resource, httpMethod := "", ""
+    if val, ok := event.(map[string]interface{})["resource"]; ok {
+        resource = val.(string)
+    }
+
+    if val, ok := event.(map[string]interface{})["httpMethod"]; ok {
+        httpMethod = val.(string)
+    }
+
     return &Request{
-        resource: event.(map[string]interface{})["resource"].(string),
-        method:   event.(map[string]interface{})["httpMethod"].(string),
-        event:    event.(map[string]interface{}),
-        routes:   routes,
-        events: events,
+        resource:      resource,
+        method:        httpMethod,
+        event:         event.(map[string]interface{}),
+        handlerConfig: config,
     }
 }
 
+// Invoke invoke and handle request by event type.
+// Supported events are: Api and Schedule
 func (r *Request) Invoke() (*Response, error) {
     log.Printf("Request event: %s", r.event)
-    var handler func(i *Input) *Response
-    var found bool
 
-    if !r.isSnsEvent() {
-        resource := r.resource
-        pathParams, ok := r.event["pathParameters"]
-        if ok && pathParams != nil {
-            for k, v := range pathParams.(map[string]interface{}) {
-                resource = strings.Replace(resource, v.(string), fmt.Sprintf("{%s}", k), 1)
-            }
-        }
-        handler, found = r.routes[resource][r.method]
-    } else {
-        record := r.event["Records"].([]map[string]interface{})[0]
-        message := record["SNS"].(map[string]string)["Message"]
-
-        var data map[string]interface{}
-        if err := json.Unmarshal([]byte(message), &data); err != nil {
-            return nil, errors.New("could not parse SNS Message")
-        }
-
-        handler, found = r.events[data["messageType"].(string)]
+    switch true {
+    case r.isHttpEvent():
+        return r.handleHttpEvent()
+    case r.isScheduledEvent():
+        return r.handleScheduledEvent()
     }
-
-    var response Response
-    if !found {
-        return &response, errors.New("handler func missing")
-    }
-
-    response = *handler(&Input{event: r.event})
-    return &response, nil
+    return nil, errors.New("unknown event")
 }
 
-func (r Request) isSnsEvent() bool {
-    return len(r.event["Records"].([]map[string]interface{})) > 0
+func (r Request) isHttpEvent() bool {
+    if _, ok := r.event["path"]; ok {
+        return true
+    }
+    return false
+}
+
+func (r Request) isScheduledEvent() bool {
+    return r.event["type"] == "schedule"
+}
+
+func (r *Request) handleHttpEvent() (*Response, error) {
+    pathParams, ok := r.event["pathParameters"]
+    resource := r.resource
+
+    if ok && pathParams != nil {
+        for k, v := range pathParams.(map[string]interface{}) {
+            resource = strings.Replace(resource, v.(string), fmt.Sprintf("{%s}", k), 1)
+        }
+    }
+
+    handler, found := r.handlerConfig.Http[resource][r.method]
+    if !found {
+        return nil, errors.New("handler func missing")
+    }
+
+    return &*handler(&Input{event: r.event}), nil
+}
+
+func (r *Request) handleScheduledEvent() (*Response, error) {
+    handler, found := r.handlerConfig.Scheduled[r.resource]
+    if !found {
+        return nil, errors.New("handler func missing")
+    }
+
+    return &*handler(), nil
 }
