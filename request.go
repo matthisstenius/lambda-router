@@ -35,7 +35,7 @@ func (h *Handler) Invoke(event interface{}) (*Response, error) {
 }
 
 func (h *Handler) isHttpEvent() bool {
-    if _, ok := h.event["path"]; ok {
+    if _, ok := h.event["httpMethod"]; ok {
         return true
     }
     return false
