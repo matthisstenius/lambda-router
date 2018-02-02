@@ -13,12 +13,9 @@ type Response struct {
 }
 
 func NewResponse(status int, body interface{}) *Response {
-    encoded, _ := json.Marshal(map[string]interface{}{
-        "code": status,
-        "data": body,
-    })
+    encoded, _ := json.Marshal(body)
 
-    log.Printf("Response: %s", encoded)
+    log.Printf("Response body: %s", encoded)
     return &Response{
         StatusCode:      status,
         Body:            string(encoded),
@@ -29,7 +26,6 @@ func NewResponse(status int, body interface{}) *Response {
 
 func NewErrorResponse(status int, error interface{}) *Response {
     encoded, _ := json.Marshal(map[string]interface{}{
-        "code":  status,
         "error": error,
     })
 
