@@ -31,9 +31,13 @@ func NewErrorResponse(status int, error interface{}) *Response {
 
     log.Printf("Error response: %s", encoded)
     return &Response{
-        StatusCode:      status,
-        Body:            string(encoded),
-        Headers:         map[string]string{},
+        StatusCode: status,
+        Body:       string(encoded),
+        Headers: map[string]string{
+            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Origin":  "*",
+        },
         IsBase64Encoded: false,
     }
 }
