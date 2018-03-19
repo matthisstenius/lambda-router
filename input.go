@@ -5,6 +5,7 @@ import (
     "errors"
     "github.com/asaskevich/govalidator"
     log "github.com/sirupsen/logrus"
+    "reflect"
 )
 
 type Input struct {
@@ -46,6 +47,17 @@ func (i *Input) PopulateBody(out interface{}) error {
     if err := json.Unmarshal([]byte(body.(string)), &out); err != nil {
         log.WithField("error", err).Error("Input::PopulateBody() could not parse body as JSON")
         return errors.New("could not parse body as JSON")
+    }
+
+    t := reflect.ValueOf(out)
+    if t.Elem().Kind() == reflect.Slice {
+        t = t.Elem()
+        for i := 0; i < t.Len(); i++ {
+            if _, err := govalidator.ValidateStruct(t.Index(i)); err != nil {
+                return err
+            }
+        }
+        return nil
     }
 
     if _, err := govalidator.ValidateStruct(out); err != nil {
