@@ -5,6 +5,8 @@ import (
     "strings"
     "fmt"
     "log"
+    "github.com/sirupsen/logrus"
+    "runtime/debug"
 )
 
 type Handler struct {
@@ -24,7 +26,8 @@ func Newhandler(config *HandlerConfig) *Handler {
 func (h *Handler) Invoke(event interface{}) (*Response, error) {
     h.event = event.(map[string]interface{})
     log.Printf("Request event: %s", event)
-
+    defer h.logPanic()
+    
     switch true {
     case h.isHttpEvent():
         return h.handleHttpEvent()
@@ -72,4 +75,14 @@ func (h *Handler) handleScheduledEvent() (*Response, error) {
     }
 
     return &*handler(), nil
+}
+
+func (h *Handler) logPanic() {
+    if r := recover(); r != nil {
+        logrus.SetFormatter(&logrus.JSONFormatter{})
+        logrus.WithFields(logrus.Fields{
+            "error": r,
+            "stack": string(debug.Stack()),
+        }).Panic()
+    }
 }
