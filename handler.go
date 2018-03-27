@@ -27,7 +27,7 @@ func (h *Handler) Invoke(event interface{}) (*Response, error) {
     h.event = event.(map[string]interface{})
     log.Printf("Request event: %s", event)
     defer h.logPanic()
-    
+
     switch true {
     case h.isHttpEvent():
         return h.handleHttpEvent()
@@ -83,6 +83,6 @@ func (h *Handler) logPanic() {
         logrus.WithFields(logrus.Fields{
             "error": r,
             "stack": string(debug.Stack()),
-        }).Panic()
+        }).Error()
     }
 }
