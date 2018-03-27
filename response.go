@@ -3,6 +3,7 @@ package api
 import (
     "encoding/json"
     "log"
+    "bitbucket.org/mstenius/logger"
 )
 
 type Response struct {
@@ -14,8 +15,10 @@ type Response struct {
 
 func NewResponse(status int, body interface{}) *Response {
     encoded, _ := json.Marshal(body)
+    logger.WithFields(logger.Fields{
+        "body": encoded,
+    }).Info("response")
 
-    log.Printf("Response body: %s", encoded)
     return &Response{
         StatusCode:      status,
         Body:            string(encoded),

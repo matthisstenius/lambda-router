@@ -5,8 +5,8 @@ import (
     "strings"
     "fmt"
     "log"
-    "github.com/sirupsen/logrus"
     "runtime/debug"
+    "bitbucket.org/mstenius/logger"
 )
 
 type Handler struct {
@@ -79,10 +79,9 @@ func (h *Handler) handleScheduledEvent() (*Response, error) {
 
 func (h *Handler) logPanic() {
     if r := recover(); r != nil {
-        logrus.SetFormatter(&logrus.JSONFormatter{})
-        logrus.WithFields(logrus.Fields{
+        logger.WithFields(logger.Fields{
             "error": r,
             "stack": string(debug.Stack()),
-        }).Error()
+        }).Error("Unexpected panic")
     }
 }

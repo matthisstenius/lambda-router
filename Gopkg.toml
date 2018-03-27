@@ -26,5 +26,5 @@
   version = "8.0.0"
 
 [[constraint]]
-  name = "github.com/sirupsen/logrus"
-  version = "1.0.4"
+  name = "bitbucket.org/mstenius/logger"
+  version = "0.3.0"
