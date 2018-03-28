@@ -4,7 +4,6 @@ import (
     "errors"
     "strings"
     "fmt"
-    "log"
     "runtime/debug"
     "bitbucket.org/mstenius/logger"
 )
@@ -25,7 +24,9 @@ func Newhandler(config *HandlerConfig) *Handler {
 
 func (h *Handler) Invoke(event interface{}) (*Response, error) {
     h.event = event.(map[string]interface{})
-    log.Printf("Request event: %s", event)
+    logger.WithFields(logger.Fields{
+        "event": event,
+    }).Info("Incoming event")
     defer h.logPanic()
 
     switch true {

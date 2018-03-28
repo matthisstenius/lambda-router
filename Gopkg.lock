@@ -2,10 +2,40 @@
 
 
 [[projects]]
+  name = "bitbucket.org/mstenius/logger"
+  packages = ["."]
+  revision = "0b92bea72284faa3b1be307dd222d4177a420093"
+  version = "0.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/Shopify/logrus-bugsnag"
+  packages = ["."]
+  revision = "577dee27f20dd8f1a529f82210094af593be12bd"
+
+[[projects]]
   name = "github.com/asaskevich/govalidator"
   packages = ["."]
   revision = "521b25f4b05fd26bec69d9dedeb8f9c9a83939a8"
   version = "v8"
+
+[[projects]]
+  name = "github.com/bugsnag/bugsnag-go"
+  packages = [".","errors"]
+  revision = "f860f733c3d1c69181d9240eed266f94422fc99e"
+  version = "v1.3.1"
+
+[[projects]]
+  name = "github.com/bugsnag/panicwrap"
+  packages = ["."]
+  revision = "4009b2b7c78d820cc4a2e42f035bb557ce4ae45b"
+  version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -28,6 +58,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f56230199641bf87bb7618ab189a628298675a10842ecf7e975ee622320c767e"
+  inputs-digest = "609658571d44a9864e5cb4f5f9c7c41db7f45c8a7e74fa27d9f4b88605c941a7"
   solver-name = "gps-cdcl"
   solver-version = 1
