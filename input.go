@@ -4,7 +4,7 @@ import (
     "encoding/json"
     "errors"
     "github.com/asaskevich/govalidator"
-    log "github.com/sirupsen/logrus"
+    "bitbucket.org/mstenius/logger"
     "reflect"
 )
 
@@ -40,12 +40,18 @@ func (i *Input) GetQueryParam(param string) string {
 func (i *Input) PopulateBody(out interface{}) error {
     body, ok := i.event["body"]
     if !ok || body == nil {
-        log.WithField("body", body).Error("Input::PopulateBody() missing request body")
+        logger.WithFields(logger.Fields{
+            "method": "Input",
+            "body":   body,
+        }).Error("missing request body")
         return errors.New("missing request body")
     }
 
     if err := json.Unmarshal([]byte(body.(string)), &out); err != nil {
-        log.WithField("error", err).Error("Input::PopulateBody() could not parse body as JSON")
+        logger.WithFields(logger.Fields{
+            "method": "Input",
+            "error":  err,
+        }).Error("could not parse body as JSON")
         return errors.New("could not parse body as JSON")
     }
 
@@ -90,21 +96,25 @@ func (i *Input) CurrentUser() *CurrentUser {
 
     authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
     if !ok || authorizer == nil {
-        log.WithField("authorizer", authorizer).Fatal("Input::CurrentUser() authorizer index missing")
+        logger.WithFields(logger.Fields{
+            "method": "CurrentUser",
+        }).Panic("authorizer index missing")
     }
 
     authData, ok := authorizer.(map[string]interface{})["authData"]
     if !ok || authorizer == nil {
-        log.WithField("authData", authData).Fatal("Input::CurrentUser() authData index missing")
+        logger.WithFields(logger.Fields{
+            "method": "CurrentUser",
+        }).Panic("authorizer index missing")
     }
 
     var data map[string]interface{}
     err := json.Unmarshal([]byte(authData.(string)), &data)
     if err != nil {
-        log.WithFields(log.Fields{
-            "error": err,
-            "data":  authData,
-        }).Fatal("Input::CurrentUser() Could not parse authData")
+        logger.WithFields(logger.Fields{
+            "method": "CurrentUser",
+            "error":  err,
+        }).Panic("Could not parse authData")
     }
     return &CurrentUser{ID: data["id"].(string)}
 }
