@@ -3,15 +3,18 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"github.com/asaskevich/govalidator"
-	"bitbucket.org/mstenius/logger"
 	"reflect"
+
+	"bitbucket.org/mstenius/logger"
+	"github.com/asaskevich/govalidator"
 )
 
+// Input holding data for current request
 type Input struct {
 	event map[string]interface{}
 }
 
+// GetPathParam in current request
 func (i *Input) GetPathParam(param string) string {
 	params, ok := i.event["pathParameters"]
 	if !ok || params == nil {
@@ -24,6 +27,7 @@ func (i *Input) GetPathParam(param string) string {
 	return value.(string)
 }
 
+// GetQueryParam in current request
 func (i *Input) GetQueryParam(param string) string {
 	params, ok := i.event["queryStringParameters"]
 	if !ok || params == nil {
@@ -37,6 +41,7 @@ func (i *Input) GetQueryParam(param string) string {
 	return value.(string)
 }
 
+// PopulateBody with data in current request
 func (i *Input) PopulateBody(out interface{}) error {
 	body, ok := i.event["body"]
 	if !ok || body == nil {
@@ -87,12 +92,14 @@ func (i *Input) Body() string {
 	return i.event["body"].(string)
 }
 
+// CurrentUser holding base information about currently authenticated user
 type CurrentUser struct {
 	ID           string
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
+// CurrentUser get currently authenticated user
 func (i *Input) CurrentUser() *CurrentUser {
 	reqContext := i.event["requestContext"]
 
@@ -118,7 +125,7 @@ func (i *Input) CurrentUser() *CurrentUser {
 			"error":  err,
 		}).Panic("Could not parse authData")
 	}
-	
+
 	currentUser := new(CurrentUser)
 	if id, ok := data["id"]; ok {
 		currentUser.ID = id.(string)
