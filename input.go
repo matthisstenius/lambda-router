@@ -130,10 +130,10 @@ func (i *Input) CurrentUser() *CurrentUser {
 	if id, ok := data["id"]; ok {
 		currentUser.ID = id.(string)
 	}
-	if accessToken, ok := data["accessToken"]; ok {
+	if accessToken, ok := data["access_token"]; ok {
 		currentUser.AccessToken = accessToken.(string)
 	}
-	if refreshToken, ok := data["refreshToken"]; ok {
+	if refreshToken, ok := data["refresh_token"]; ok {
 		currentUser.RefreshToken = refreshToken.(string)
 	}
 	return currentUser
