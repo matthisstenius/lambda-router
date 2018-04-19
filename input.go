@@ -93,14 +93,10 @@ func (i *Input) Body() string {
 }
 
 // CurrentUser holding base information about currently authenticated user
-type CurrentUser struct {
-	ID           string
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
+type CurrentUser map[string]interface{}
 
 // CurrentUser get currently authenticated user
-func (i *Input) CurrentUser() *CurrentUser {
+func (i *Input) CurrentUser() CurrentUser {
 	reqContext := i.event["requestContext"]
 
 	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
@@ -117,24 +113,13 @@ func (i *Input) CurrentUser() *CurrentUser {
 		}).Panic("authorizer index missing")
 	}
 
-	var data map[string]interface{}
-	err := json.Unmarshal([]byte(authData.(string)), &data)
+	var currentUser CurrentUser
+	err := json.Unmarshal([]byte(authData.(string)), &currentUser)
 	if err != nil {
 		logger.WithFields(logger.Fields{
 			"method": "CurrentUser",
 			"error":  err,
 		}).Panic("Could not parse authData")
-	}
-
-	currentUser := new(CurrentUser)
-	if id, ok := data["id"]; ok {
-		currentUser.ID = id.(string)
-	}
-	if accessToken, ok := data["access_token"]; ok {
-		currentUser.AccessToken = accessToken.(string)
-	}
-	if refreshToken, ok := data["refresh_token"]; ok {
-		currentUser.RefreshToken = refreshToken.(string)
 	}
 	return currentUser
 }
