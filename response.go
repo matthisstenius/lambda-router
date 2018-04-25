@@ -51,3 +51,8 @@ func NewErrorResponse(status int, error interface{}) *Response {
 		IsBase64Encoded: false,
 	}
 }
+
+// NewStreamResponse initialize empty Response
+func NewStreamResposne() *Response {
+	return &Response{}
+}
