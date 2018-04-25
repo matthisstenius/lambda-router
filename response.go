@@ -6,6 +6,7 @@ import (
 	"bitbucket.org/mstenius/logger"
 )
 
+// Response ...
 type Response struct {
 	StatusCode      int               `json:"statusCode"`
 	Body            interface{}       `json:"body"`
@@ -13,6 +14,7 @@ type Response struct {
 	IsBase64Encoded bool              `json:"isBase64Encoded"`
 }
 
+// NewResponse initialize success response
 func NewResponse(status int, body interface{}) *Response {
 	encoded, _ := json.Marshal(body)
 	logger.WithFields(logger.Fields{"body": string(encoded)}).Info("response")
@@ -29,6 +31,7 @@ func NewResponse(status int, body interface{}) *Response {
 	}
 }
 
+// NewErrorResponse initialize error response
 func NewErrorResponse(status int, error interface{}) *Response {
 	encoded, _ := json.Marshal(map[string]interface{}{
 		"error": error,

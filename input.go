@@ -41,8 +41,8 @@ func (i *Input) GetQueryParam(param string) string {
 	return value.(string)
 }
 
-// PopulateBody with data in current request
-func (i *Input) PopulateBody(out interface{}) error {
+// ParseBody in current request
+func (i *Input) ParseBody(out interface{}) error {
 	body, ok := i.event["body"]
 	if !ok || body == nil {
 		logger.WithFields(logger.Fields{
@@ -77,17 +77,7 @@ func (i *Input) PopulateBody(out interface{}) error {
 	return nil
 }
 
-// PopulateEventBody parse body in SNS event
-func (i *Input) PopulateEventBody(out interface{}) error {
-	record := i.event["Records"].([]map[string]interface{})[0]
-	message := record["SNS"].(map[string]string)["Message"]
-
-	if err := json.Unmarshal([]byte(message), &out); err != nil {
-		return errors.New("could not parse SNS Message")
-	}
-	return nil
-}
-
+// Body un parsed body from HTTP event
 func (i *Input) Body() string {
 	return i.event["body"].(string)
 }
@@ -122,4 +112,47 @@ func (i *Input) CurrentUser() CurrentUser {
 		}).Panic("Could not parse authData")
 	}
 	return currentUser
+}
+
+// StreamInput ...
+type StreamInput struct {
+	event map[string]interface{}
+}
+
+// ParseOldImage from DynamoDB stream event
+func (si *StreamInput) ParseOldImage(out map[string]interface{}) error {
+	record := si.event["Records"].([]map[string]interface{})[0]
+	image, ok := record["dynamodb"].(map[string]map[string]interface{})["OldImage"]
+	if !ok {
+		logger.WithFields(logger.Fields{
+			"record": record,
+		}).Error("StreamInput::ParseOldImage() missing OldImage attribute in event")
+		return errors.New("missing OldImage attribute in event")
+	}
+
+	for k, attributes := range image {
+		for _, attribute := range attributes.(map[string]interface{}) {
+			out[k] = attribute
+		}
+	}
+	return nil
+}
+
+// ParseNewImage from DynamoDB stream event
+func (si *StreamInput) ParseNewImage(out map[string]interface{}) error {
+	record := si.event["Records"].([]map[string]interface{})[0]
+	image, ok := record["dynamodb"].(map[string]map[string]interface{})["NewImage"]
+	if !ok {
+		logger.WithFields(logger.Fields{
+			"record": record,
+		}).Error("StreamInput::ParseNewImage() missing NewImage attribute in event")
+		return errors.New("missing NewImage attribute in event")
+	}
+
+	for k, attributes := range image {
+		for _, attribute := range attributes.(map[string]interface{}) {
+			out[k] = attribute
+		}
+	}
+	return nil
 }
