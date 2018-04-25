@@ -53,6 +53,7 @@ func NewErrorResponse(status int, error interface{}) *Response {
 }
 
 // NewStreamResponse initialize empty Response
-func NewStreamResponse() *Response {
+func NewStreamResponse(message string) *Response {
+	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewStreamResponse() stream handler responded")
 	return &Response{}
 }
