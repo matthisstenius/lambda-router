@@ -53,6 +53,6 @@ func NewErrorResponse(status int, error interface{}) *Response {
 }
 
 // NewStreamResponse initialize empty Response
-func NewStreamResposne() *Response {
+func NewStreamResponse() *Response {
 	return &Response{}
 }
