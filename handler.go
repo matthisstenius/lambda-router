@@ -68,10 +68,9 @@ func (h *Handler) isScheduledEvent() bool {
 }
 
 func (h *Handler) isStreamEvent() bool {
-	if v, ok := h.event["Records"]; ok {
-		if len(v.([]map[string]interface{})) > 0 && v.([]map[string]string)[0]["EventSource"] == eventSourceDynamoDB {
-			return true
-		}
+	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
+		fmt.Println(v[0])
+		return v[0].(map[string]interface{})["eventSource"] == eventSourceDynamoDB
 	}
 	return false
 }
@@ -106,8 +105,8 @@ func (h *Handler) handleScheduledEvent() (*Response, error) {
 }
 
 func (h *Handler) handleStreamEvent() (*Response, error) {
-	record := h.event["Records"].([]map[string]interface{})[0]
-	streamArn := record["eventSourceARN"].(string)
+	record := h.event["Records"].([]interface{})[0]
+	streamArn := record.(map[string]interface{})["eventSourceARN"].(string)
 	handler, ok := h.config.Stream[streamArn]
 	if !ok {
 		return nil, errors.New("handler func missing")

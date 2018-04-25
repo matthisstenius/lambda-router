@@ -121,8 +121,8 @@ type StreamInput struct {
 
 // ParseOldImage from DynamoDB stream event
 func (si *StreamInput) ParseOldImage(out map[string]interface{}) error {
-	record := si.event["Records"].([]map[string]interface{})[0]
-	image, ok := record["dynamodb"].(map[string]map[string]interface{})["OldImage"]
+	record := si.event["Records"].([]interface{})[0]
+	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["OldImage"].(map[string]interface{})
 	if !ok {
 		logger.WithFields(logger.Fields{
 			"record": record,
@@ -140,8 +140,8 @@ func (si *StreamInput) ParseOldImage(out map[string]interface{}) error {
 
 // ParseNewImage from DynamoDB stream event
 func (si *StreamInput) ParseNewImage(out map[string]interface{}) error {
-	record := si.event["Records"].([]map[string]interface{})[0]
-	image, ok := record["dynamodb"].(map[string]map[string]interface{})["NewImage"]
+	record := si.event["Records"].([]interface{})[0]
+	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["NewImage"].(map[string]interface{})
 	if !ok {
 		logger.WithFields(logger.Fields{
 			"record": record,
