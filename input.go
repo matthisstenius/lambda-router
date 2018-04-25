@@ -114,6 +114,12 @@ func (i *Input) CurrentUser() CurrentUser {
 	return currentUser
 }
 
+const (
+	StreamEventInsert StreamEventType = "INSERT"
+	StreamEventModify StreamEventType = "MODIFY"
+	StreamEventRemove StreamEventType = "REMOVE"
+)
+
 // StreamInput ...
 type StreamInput struct {
 	event map[string]interface{}
@@ -155,4 +161,13 @@ func (si *StreamInput) ParseNewImage(out map[string]interface{}) error {
 		}
 	}
 	return nil
+}
+
+// StreamEventType type of stream event. Possible values: INSERT, MODIFY, REMOVE
+type StreamEventType string
+
+// EventName of current stream event
+func (si *StreamInput) EventName() StreamEventType {
+	record := si.event["Records"].([]interface{})[0]
+	return StreamEventType(record.(map[string]interface{})["eventName"].(string))
 }
