@@ -5,6 +5,8 @@ import (
 	"errors"
 	"reflect"
 
+	"strconv"
+
 	"bitbucket.org/mstenius/logger"
 	"github.com/asaskevich/govalidator"
 )
@@ -126,7 +128,7 @@ type StreamInput struct {
 }
 
 // ParseOldImage from DynamoDB stream event
-func (si *StreamInput) ParseOldImage(out map[string]interface{}) error {
+func (si *StreamInput) ParseOldImage(out interface{}) error {
 	record := si.event["Records"].([]interface{})[0]
 	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["OldImage"].(map[string]interface{})
 	if !ok {
@@ -136,10 +138,8 @@ func (si *StreamInput) ParseOldImage(out map[string]interface{}) error {
 		return errors.New("missing OldImage attribute in event")
 	}
 
-	for k, attributes := range image {
-		for _, attribute := range attributes.(map[string]interface{}) {
-			out[k] = attribute
-		}
+	if err := si.unmarshalAttributes(image, out); err != nil {
+		return err
 	}
 	return nil
 }
@@ -155,19 +155,66 @@ func (si *StreamInput) ParseNewImage(out map[string]interface{}) error {
 		return errors.New("missing NewImage attribute in event")
 	}
 
-	for k, attributes := range image {
-		for _, attribute := range attributes.(map[string]interface{}) {
-			out[k] = attribute
-		}
+	if err := si.unmarshalAttributes(image, out); err != nil {
+		return err
 	}
 	return nil
+}
+
+func (si *StreamInput) unmarshalAttributes(attributes map[string]interface{}, out interface{}) error {
+	encoded, err := json.Marshal(si.recursivelyFlattenStreamAttributes(attributes))
+	if err != nil {
+		logger.WithFields(logger.Fields{
+			"error": err,
+		}).Error("StreamInput::unmarshalAttributes() could not marshal json")
+		return errors.New("could not marshal json")
+	}
+
+	if err := json.Unmarshal(encoded, out); err != nil {
+		logger.WithFields(logger.Fields{
+			"error":   err,
+			"encoded": string(encoded),
+		}).Error("StreamInput::unmarshalAttributes() could not unmarshal json")
+		return errors.New("could not unmarshal json")
+	}
+	return nil
+}
+
+// Recursively flattens DynamoDB stream attributes into something Go can marshal/unmarshal
+func (si *StreamInput) recursivelyFlattenStreamAttributes(attributes map[string]interface{}) map[string]interface{} {
+	tmp := make(map[string]interface{})
+	for val := range si.flattenStreamAttributes(attributes) {
+		tmp[val[0].(string)] = val[1]
+		if v, ok := val[1].(map[string]interface{}); ok {
+			tmp[val[0].(string)] = si.recursivelyFlattenStreamAttributes(v)
+		}
+	}
+	return tmp
+}
+
+// Flattens DynamoDB stream image attributes into something Go can marshal/unmrshal
+func (si *StreamInput) flattenStreamAttributes(attributes map[string]interface{}) <-chan []interface{} {
+	ch := make(chan []interface{})
+	go func() {
+		for key, value := range attributes {
+			for k, v := range value.(map[string]interface{}) {
+				// Stream input format ints as strings so we need to cast them back to ints
+				if k == "N" {
+					v, _ = strconv.Atoi(v.(string))
+				}
+				ch <- []interface{}{key, v}
+			}
+		}
+		close(ch)
+	}()
+	return ch
 }
 
 // StreamEventType type of stream event. Possible values: INSERT, MODIFY, REMOVE
 type StreamEventType string
 
-// EventName of current stream event
-func (si *StreamInput) EventName() StreamEventType {
+// EventType of current stream event
+func (si *StreamInput) EventType() StreamEventType {
 	record := si.event["Records"].([]interface{})[0]
 	return StreamEventType(record.(map[string]interface{})["eventName"].(string))
 }
