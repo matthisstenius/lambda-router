@@ -145,7 +145,7 @@ func (si *StreamInput) ParseOldImage(out interface{}) error {
 }
 
 // ParseNewImage from DynamoDB stream event
-func (si *StreamInput) ParseNewImage(out map[string]interface{}) error {
+func (si *StreamInput) ParseNewImage(out interface{}) error {
 	record := si.event["Records"].([]interface{})[0]
 	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["NewImage"].(map[string]interface{})
 	if !ok {
