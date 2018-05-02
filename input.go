@@ -106,12 +106,16 @@ func (i *Input) CurrentUser() CurrentUser {
 	}
 
 	var currentUser CurrentUser
-	err := json.Unmarshal([]byte(authData.(string)), &currentUser)
-	if err != nil {
-		logger.WithFields(logger.Fields{
-			"method": "CurrentUser",
-			"error":  err,
-		}).Panic("Could not parse authData")
+	if value, ok := authData.(string); ok {
+		err := json.Unmarshal([]byte(value), &currentUser)
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"method": "CurrentUser",
+				"error":  err,
+			}).Panic("Could not parse authData")
+		}
+	} else {
+		currentUser = authData.(map[string]interface{})
 	}
 	return currentUser
 }
