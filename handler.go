@@ -54,6 +54,10 @@ func (h *Handler) Invoke(event interface{}) (*Response, error) {
 		break
 	case h.isStreamEvent():
 		response, err = h.handleStreamEvent()
+		break
+	case h.isS3Event():
+		response, err = h.handleS3Event()
+		break
 	default:
 		response, err = nil, errors.New("unknown event")
 	}
@@ -73,7 +77,6 @@ func (h *Handler) isScheduledEvent() bool {
 
 func (h *Handler) isStreamEvent() bool {
 	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
-		fmt.Println(v[0])
 		return v[0].(map[string]interface{})["eventSource"] == eventSourceDynamoDB
 	}
 	return false
