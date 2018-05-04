@@ -222,3 +222,14 @@ func (si *StreamInput) EventType() StreamEventType {
 	record := si.event["Records"].([]interface{})[0]
 	return StreamEventType(record.(map[string]interface{})["eventName"].(string))
 }
+
+// S3Input ...
+type S3Input struct {
+	event map[string]interface{}
+}
+
+// ObjectKey extract object key from event
+func (si *S3Input) ObjectKey() string {
+	record := si.event["Records"].([]interface{})[0].(map[string]interface{})
+	return record["s3"].(map[string]interface{})["object"].(map[string]interface{})["key"].(string)
+}

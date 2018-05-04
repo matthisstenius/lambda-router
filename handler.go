@@ -6,11 +6,14 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"regexp"
+
 	"bitbucket.org/mstenius/logger"
 )
 
 const (
 	eventSourceDynamoDB = "aws:dynamodb"
+	eventSourceS3       = "aws:s3"
 )
 
 // Handler ...
@@ -24,6 +27,7 @@ type HandlerConfig struct {
 	HTTP      map[string]map[string]func(i *Input) *Response
 	Scheduled map[string]func() *Response
 	Stream    map[string]func(i *StreamInput) *Response
+	S3        map[string]func(i *S3Input) *Response
 }
 
 // NewHandler initialization for Handler
@@ -75,6 +79,13 @@ func (h *Handler) isStreamEvent() bool {
 	return false
 }
 
+func (h *Handler) isS3Event() bool {
+	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
+		return v[0].(map[string]interface{})["eventSource"] == eventSourceS3
+	}
+	return false
+}
+
 func (h *Handler) handleHTTPEvent() (*Response, error) {
 	pathParams, ok := h.event["pathParameters"]
 	resource := h.event["resource"].(string)
@@ -112,6 +123,26 @@ func (h *Handler) handleStreamEvent() (*Response, error) {
 		return nil, errors.New("handler func missing")
 	}
 	return &*handler(&StreamInput{event: h.event}), nil
+}
+
+func (h *Handler) handleS3Event() (*Response, error) {
+	record := h.event["Records"].([]interface{})[0].(map[string]interface{})
+	key := record["s3"].(map[string]interface{})["object"].(map[string]interface{})["key"].(string)
+
+	re := regexp.MustCompile("[^/]+$")
+	folder := re.ReplaceAllString(key, "")
+	if folder == "" {
+		// If object is in root we want to look to /
+		folder = "/"
+	} else {
+		folder = strings.TrimSuffix(folder, "/")
+	}
+
+	handler, ok := h.config.S3[folder]
+	if !ok {
+		return nil, errors.New("handler func missing")
+	}
+	return &*handler(&S3Input{event: h.event}), nil
 }
 
 func (h *Handler) logPanic() {
