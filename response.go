@@ -57,3 +57,9 @@ func NewStreamResponse(message string) *Response {
 	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewStreamResponse() stream handler responded")
 	return &Response{}
 }
+
+// NewStreamResponse initialize empty Response
+func NewS3Response(message string) *Response {
+	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewS3Response() S3 handler responded")
+	return &Response{}
+}
