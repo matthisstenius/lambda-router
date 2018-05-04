@@ -7,6 +7,8 @@ import (
 
 	"strconv"
 
+	"strings"
+
 	"bitbucket.org/mstenius/logger"
 	"github.com/asaskevich/govalidator"
 )
@@ -228,8 +230,14 @@ type S3Input struct {
 	event map[string]interface{}
 }
 
-// ObjectKey extract object key from event
-func (si *S3Input) ObjectKey() string {
+// ObjectKeyPath extract full object key path
+func (si *S3Input) ObjectKeyPath() string {
 	record := si.event["Records"].([]interface{})[0].(map[string]interface{})
 	return record["s3"].(map[string]interface{})["object"].(map[string]interface{})["key"].(string)
+}
+
+// ObjectKey extract object key from object key path
+func (si *S3Input) ObjectKey() string {
+	fragments := strings.Split(si.ObjectKeyPath(), "/")
+	return fragments[len(fragments)-1]
 }
