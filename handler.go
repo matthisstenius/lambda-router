@@ -8,8 +8,6 @@ import (
 
 	"regexp"
 
-	"encoding/json"
-
 	"bitbucket.org/mstenius/logger"
 )
 
@@ -164,12 +162,7 @@ func (h *Handler) handleS3Event() (*Response, error) {
 
 func (h *Handler) handleSNSEvent() (*Response, error) {
 	record := h.event["Records"].([]interface{})[0].(map[string]interface{})
-	var message map[string]interface{}
-	if err := json.Unmarshal([]byte(record["Sns"].(string)), &message); err != nil {
-		return nil, errors.New("invalid SNS payload")
-	}
-
-	handler, ok := h.config.SNS[message["messageType"].(string)]
+	handler, ok := h.config.SNS[record["TopicArn"].(string)]
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}
