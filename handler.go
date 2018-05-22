@@ -8,12 +8,15 @@ import (
 
 	"regexp"
 
+	"encoding/json"
+
 	"bitbucket.org/mstenius/logger"
 )
 
 const (
 	eventSourceDynamoDB = "aws:dynamodb"
 	eventSourceS3       = "aws:s3"
+	eventSourceSNS      = "aws:sns"
 )
 
 // Handler ...
@@ -28,6 +31,7 @@ type HandlerConfig struct {
 	Scheduled map[string]func() *Response
 	Stream    map[string]func(i *StreamInput) *Response
 	S3        map[string]func(i *S3Input) *Response
+	SNS       map[string]func(i *SNSInput) *Response
 }
 
 // NewHandler initialization for Handler
@@ -58,6 +62,9 @@ func (h *Handler) Invoke(event interface{}) (*Response, error) {
 	case h.isS3Event():
 		response, err = h.handleS3Event()
 		break
+	case h.isSNSEvent():
+		response, err = h.handleSNSEvent()
+		break
 	default:
 		response, err = nil, errors.New("unknown event")
 	}
@@ -85,6 +92,13 @@ func (h *Handler) isStreamEvent() bool {
 func (h *Handler) isS3Event() bool {
 	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
 		return v[0].(map[string]interface{})["eventSource"] == eventSourceS3
+	}
+	return false
+}
+
+func (h *Handler) isSNSEvent() bool {
+	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
+		return v[0].(map[string]interface{})["eventSource"] == eventSourceSNS
 	}
 	return false
 }
@@ -146,6 +160,20 @@ func (h *Handler) handleS3Event() (*Response, error) {
 		return nil, errors.New("handler func missing")
 	}
 	return &*handler(&S3Input{event: h.event}), nil
+}
+
+func (h *Handler) handleSNSEvent() (*Response, error) {
+	record := h.event["Records"].([]interface{})[0].(map[string]interface{})
+	var message map[string]interface{}
+	if err := json.Unmarshal([]byte(record["Sns"].(string)), &message); err != nil {
+		return nil, errors.New("invalid SNS payload")
+	}
+
+	handler, ok := h.config.SNS[message["messageType"].(string)]
+	if !ok {
+		return nil, errors.New("handler func missing")
+	}
+	return &*handler(&SNSInput{event: h.event}), nil
 }
 
 func (h *Handler) logPanic() {

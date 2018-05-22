@@ -241,3 +241,20 @@ func (si *S3Input) ObjectKey() string {
 	fragments := strings.Split(si.ObjectKeyPath(), "/")
 	return fragments[len(fragments)-1]
 }
+
+// SNSInput ...
+type SNSInput struct {
+	event map[string]interface{}
+}
+
+// ParseMessage as JSON
+func (si *SNSInput) ParseMessage(out interface{}) error {
+	record := si.event["Records"].([]interface{})[0].(map[string]interface{})
+	if err := json.Unmarshal([]byte(record["Sns"].(string)), out); err != nil {
+		logger.WithFields(logger.Fields{
+			"error": err,
+		}).Error("SNSInput::ParseMessage() could not unmarshal json")
+		return errors.New("invalid SNS payload")
+	}
+	return nil
+}
