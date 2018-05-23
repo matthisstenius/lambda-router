@@ -96,7 +96,7 @@ func (h *Handler) isS3Event() bool {
 
 func (h *Handler) isSNSEvent() bool {
 	if v, ok := h.event["Records"].([]interface{}); ok && len(v) > 0 {
-		return v[0].(map[string]interface{})["eventSource"] == eventSourceSNS
+		return v[0].(map[string]interface{})["EventSource"] == eventSourceSNS
 	}
 	return false
 }
@@ -162,7 +162,7 @@ func (h *Handler) handleS3Event() (*Response, error) {
 
 func (h *Handler) handleSNSEvent() (*Response, error) {
 	record := h.event["Records"].([]interface{})[0].(map[string]interface{})
-	handler, ok := h.config.SNS[record["TopicArn"].(string)]
+	handler, ok := h.config.SNS[record["Sns"].(map[string]interface{})["TopicArn"].(string)]
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}

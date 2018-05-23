@@ -250,7 +250,7 @@ type SNSInput struct {
 // ParseMessage as JSON
 func (si *SNSInput) ParseMessage(out interface{}) error {
 	record := si.event["Records"].([]interface{})[0].(map[string]interface{})
-	if err := json.Unmarshal([]byte(record["Sns"].(string)), out); err != nil {
+	if err := json.Unmarshal([]byte(record["Sns"].(map[string]interface{})["Message"].(string)), out); err != nil {
 		logger.WithFields(logger.Fields{
 			"error": err,
 		}).Error("SNSInput::ParseMessage() could not unmarshal json")
