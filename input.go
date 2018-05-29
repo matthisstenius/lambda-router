@@ -3,14 +3,11 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"reflect"
-
 	"strconv"
 
 	"strings"
 
 	"bitbucket.org/mstenius/logger"
-	"github.com/asaskevich/govalidator"
 )
 
 // Input holding data for current request
@@ -62,21 +59,6 @@ func (i *Input) ParseBody(out interface{}) error {
 			"error":  err,
 		}).Error("could not parse body as JSON")
 		return errors.New("could not parse body as JSON")
-	}
-
-	t := reflect.ValueOf(out)
-	if t.Elem().Kind() == reflect.Slice {
-		t = t.Elem()
-		for i := 0; i < t.Len(); i++ {
-			if _, err := govalidator.ValidateStruct(t.Index(i)); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
-	if _, err := govalidator.ValidateStruct(out); err != nil {
-		return err
 	}
 	return nil
 }
