@@ -1,12 +1,12 @@
-package api
+package http
 
 import (
 	"encoding/json"
 
-	"bitbucket.org/mstenius/logger"
+	"github.com/matthisstenius/logger"
 )
 
-// Response ...
+// Response for HTTP event
 type Response struct {
 	StatusCode      int               `json:"statusCode"`
 	Body            interface{}       `json:"body"`
@@ -50,10 +50,4 @@ func NewErrorResponse(status int, error interface{}) *Response {
 		},
 		IsBase64Encoded: false,
 	}
-}
-
-// NewStreamResponse initialize empty Response
-func NewEmptyResponse(message string) *Response {
-	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewStreamResponse() stream handler responded")
-	return &Response{}
 }
