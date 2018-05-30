@@ -2,16 +2,16 @@ package dynamodb
 
 import (
 	"errors"
-	"lambda-router/dynamodb"
 	"runtime/debug"
 
-	"lambda-router/http"
+	"github.com/matthisstenius/lambda-router/dynamodb"
+	"github.com/matthisstenius/lambda-router/http"
 
-	"lambda-router/schedule"
+	"github.com/matthisstenius/lambda-router/schedule"
 
-	"lambda-router/s3"
+	"github.com/matthisstenius/lambda-router/s3"
 
-	"lambda-router/sns"
+	"github.com/matthisstenius/lambda-router/sns"
 
 	"github.com/matthisstenius/logger"
 )
