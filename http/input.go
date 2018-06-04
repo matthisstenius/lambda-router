@@ -68,35 +68,34 @@ func (i *Input) Body() string {
 // CurrentUser holding base information about currently authenticated user
 type CurrentUser map[string]interface{}
 
-// CurrentUser get currently authenticated user
-func (i *Input) CurrentUser() CurrentUser {
+// CurrentUser get currently authenticated user claims.
+func (i *Input) CurrentUser() (CurrentUser, error) {
 	reqContext := i.event["requestContext"]
 
 	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
 	if !ok || authorizer == nil {
-		logger.WithFields(logger.Fields{
-			"method": "CurrentUser",
-		}).Panic("authorizer index missing")
+		logger.WithFields(logger.Fields{}).Error("Input::CurrentUser() authorizer index missing in event")
+		return nil, errors.New("authorizer index missing in event")
 	}
 
-	authData, ok := authorizer.(map[string]interface{})["authData"]
-	if !ok || authorizer == nil {
-		logger.WithFields(logger.Fields{
-			"method": "CurrentUser",
-		}).Panic("authorizer index missing")
+	claims, ok := authorizer.(map[string]interface{})["claims"]
+	if !ok {
+		logger.WithFields(logger.Fields{}).Error("Input::CurrentUser() Claims missing in authorizer")
+		return nil, errors.New("claims missing in authorizer")
 	}
 
 	var currentUser CurrentUser
-	if value, ok := authData.(string); ok {
+	if value, ok := claims.(string); ok {
 		err := json.Unmarshal([]byte(value), &currentUser)
 		if err != nil {
 			logger.WithFields(logger.Fields{
 				"method": "CurrentUser",
 				"error":  err,
-			}).Panic("Could not parse authData")
+			}).Error("Input::CurrentUser() Could not parse claims")
+			return nil, errors.New("could not parse claims")
 		}
 	} else {
-		currentUser = authData.(map[string]interface{})
+		currentUser = claims.(map[string]interface{})
 	}
-	return currentUser
+	return currentUser, nil
 }
