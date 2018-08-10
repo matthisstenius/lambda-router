@@ -12,6 +12,11 @@ type Input struct {
 	event map[string]interface{}
 }
 
+// NewInput initializer
+func NewInput(e map[string]interface{}) *Input {
+	return &Input{event: e}
+}
+
 // GetPathParam in current request
 func (i *Input) GetPathParam(param string) string {
 	params, ok := i.event["pathParameters"]

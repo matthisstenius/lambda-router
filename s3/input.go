@@ -7,6 +7,11 @@ type Input struct {
 	event map[string]interface{}
 }
 
+// NewInput initializer
+func NewInput(e map[string]interface{}) *Input {
+	return &Input{event: e}
+}
+
 // ObjectKeyPath extract full object key path
 func (i *Input) ObjectKeyPath() string {
 	record := i.event["Records"].([]interface{})[0].(map[string]interface{})

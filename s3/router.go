@@ -40,7 +40,7 @@ func (r *Router) Dispatch() (*Response, error) {
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}
-	return &*handler(&Input{event: r.event}), nil
+	return &*handler(NewInput(r.event)), nil
 }
 
 // IsMatch for S3 event

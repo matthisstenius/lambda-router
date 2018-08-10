@@ -13,6 +13,11 @@ type Input struct {
 	event map[string]interface{}
 }
 
+// NewInput initializer
+func NewInput(e map[string]interface{}) *Input {
+	return &Input{event: e}
+}
+
 // ParseOldImage from DynamoDB dynamodb event
 func (i *Input) ParseOldImage(out interface{}) error {
 	record := i.event["Records"].([]interface{})[0]
