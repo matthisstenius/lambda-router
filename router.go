@@ -4,68 +4,54 @@ import (
 	"errors"
 	"runtime/debug"
 
-	"github.com/matthisstenius/lambda-router/dynamodb"
-	"github.com/matthisstenius/lambda-router/http"
-
-	"github.com/matthisstenius/lambda-router/schedule"
-
-	"github.com/matthisstenius/lambda-router/s3"
-
-	"github.com/matthisstenius/lambda-router/sns"
-
+	"github.com/matthisstenius/lambda-router/domain"
 	"github.com/matthisstenius/logger"
 )
 
-// Router that can be used to route different AWS Lambda events
-// to corresponding handlers
-type Router struct {
+// Event ...
+type Event struct {
 	config *Config
 }
 
 // Config for routing event handlers
 type Config struct {
-	HTTP      http.Routes
-	Scheduled schedule.Routes
-	DynamoDB  dynamodb.Routes
-	S3        s3.Routes
-	SNS       sns.Routes
+	HTTP      domain.Router
+	Scheduled domain.Router
+	DynamoDB  domain.Router
+	S3        domain.Router
+	SNS       domain.Router
 }
 
-// NewHandler initialization for Router
-func NewRouter(config *Config) *Router {
-	return &Router{config: config}
+// NewEvent initialization for Event
+func NewEvent(config *Config) *Event {
+	return &Event{config: config}
 }
 
-// Start correct handler based in mapped handler routes and incoming event
-func (r *Router) Start(event interface{}) (interface{}, error) {
-	e := event.(map[string]interface{})
+// Handle event by routing matched event
+func (e *Event) Handle(event interface{}) (interface{}, error) {
+	evt := event.(map[string]interface{})
 	logger.WithFields(logger.Fields{
 		"event": event,
 	}).Info("Incoming event")
-	defer r.logPanic()
+	defer e.logPanic()
 
 	var response interface{}
 	var err error
 	switch true {
-	case http.IsMatch(e):
-		router := http.NewRouter(e, r.config.HTTP)
-		response, err = router.Dispatch()
+	case e.config.HTTP.IsMatch(evt):
+		response, err = e.config.HTTP.Route(evt)
 		break
-	case schedule.IsMatch(e):
-		router := schedule.NewRouter(e, r.config.Scheduled)
-		response, err = router.Dispatch()
+	case e.config.Scheduled.IsMatch(evt):
+		response, err = e.config.Scheduled.Route(evt)
 		break
-	case dynamodb.IsMatch(e):
-		router := dynamodb.NewRouter(e, r.config.DynamoDB)
-		response, err = router.Dispatch()
+	case e.config.DynamoDB.IsMatch(evt):
+		response, err = e.config.DynamoDB.Route(evt)
 		break
-	case s3.IsMatch(e):
-		router := s3.NewRouter(e, r.config.S3)
-		response, err = router.Dispatch()
+	case e.config.S3.IsMatch(evt):
+		response, err = e.config.S3.Route(evt)
 		break
-	case sns.IsMatch(e):
-		router := sns.NewRouter(e, r.config.SNS)
-		response, err = router.Dispatch()
+	case e.config.SNS.IsMatch(evt):
+		response, err = e.config.SNS.Route(evt)
 		break
 	default:
 		response, err = nil, errors.New("unknown event")
@@ -73,7 +59,7 @@ func (r *Router) Start(event interface{}) (interface{}, error) {
 	return response, err
 }
 
-func (r *Router) logPanic() {
+func (e *Event) logPanic() {
 	if r := recover(); r != nil {
 		logger.WithFields(logger.Fields{
 			"error": r,

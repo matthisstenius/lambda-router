@@ -4,27 +4,33 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/matthisstenius/lambda-router/domain"
 )
 
+type Route struct {
+	Handler func(i *Input) *Response
+	Access  AccessProvider
+}
+
 // Routes mappings for HTTP handlers
-type Routes map[string]map[string]func(i *Input) *Response
+type Routes map[string]map[string]Route
 
 // Router for HTTP events
 type Router struct {
-	event  map[string]interface{}
 	routes Routes
 }
 
 // NewRouter initializer
-func NewRouter(e map[string]interface{}, routes Routes) *Router {
-	return &Router{event: e, routes: routes}
+func NewRouter(routes Routes) *Router {
+	return &Router{routes: routes}
 }
 
 // Dispatch incoming event to corresponding handler
-func (r *Router) Dispatch() (*Response, error) {
-	pathParams, ok := r.event["pathParameters"]
-	resource := r.event["resource"].(string)
-	method := r.event["httpMethod"].(string)
+func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
+	pathParams, ok := evt["pathParameters"]
+	resource := evt["resource"].(string)
+	method := evt["httpMethod"].(string)
 
 	if ok && pathParams != nil {
 		for k, v := range pathParams.(map[string]interface{}) {
@@ -36,11 +42,11 @@ func (r *Router) Dispatch() (*Response, error) {
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}
-	return &*handler(NewInput(r.event)), nil
+	return &*handler.Handler(NewInput(evt)), nil
 }
 
 // IsMatch for HTTP event
-func IsMatch(e map[string]interface{}) bool {
+func (r *Router) IsMatch(e map[string]interface{}) bool {
 	if _, ok := e["httpMethod"]; ok {
 		return true
 	}
