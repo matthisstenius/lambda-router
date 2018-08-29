@@ -2,51 +2,51 @@ package s3
 
 import (
 	"errors"
+	"github.com/matthisstenius/lambda-router/domain"
 	"regexp"
 	"strings"
 )
 
-const eventSourceS3 = "aws:s3"
+const EventSource = "aws:s3"
+
+// Route mapping for handler
+type Route struct {
+	Handler func(i *Input) domain.Response
+}
 
 // Routes mappings for S3 handlers
-type Routes map[string]func(i *Input) *Response
+type Routes map[string]Route
 
 // Router for S3 events
 type Router struct {
-	event  map[string]interface{}
 	routes Routes
 }
 
 // NewRouter initializer
-func NewRouter(e map[string]interface{}, routes Routes) *Router {
-	return &Router{event: e, routes: routes}
+func NewRouter(routes Routes) *Router {
+	return &Router{routes: routes}
 }
 
-// Dispatch incoming event to corresponding handler
-func (r *Router) Dispatch() (*Response, error) {
-	record := r.event["Records"].([]interface{})[0].(map[string]interface{})
+// Route incoming event to corresponding handler
+func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
+	record := evt["Records"].([]interface{})[0].(map[string]interface{})
 	key := record["s3"].(map[string]interface{})["object"].(map[string]interface{})["key"].(string)
 
 	re := regexp.MustCompile("[^/]+$")
 	folder := re.ReplaceAllString(key, "")
-	if folder == "" {
-		// If object is in root we want to look to /
-		folder = "/"
-	} else {
-		folder = strings.TrimSuffix(folder, "/")
-	}
+	folder = "/" + strings.TrimSuffix(folder, "/")
 
-	handler, ok := r.routes[folder]
+	route, ok := r.routes[folder]
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}
-	return &*handler(NewInput(r.event)), nil
+	return route.Handler(NewInput(evt)), nil
 }
 
 // IsMatch for S3 event
-func IsMatch(e map[string]interface{}) bool {
+func (r *Router) IsMatch(e map[string]interface{}) bool {
 	if v, ok := e["Records"].([]interface{}); ok && len(v) > 0 {
-		return v[0].(map[string]interface{})["eventSource"] == eventSourceS3
+		return v[0].(map[string]interface{})["eventSource"] == EventSource
 	}
 	return false
 }

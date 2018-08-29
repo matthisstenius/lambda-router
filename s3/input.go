@@ -3,6 +3,7 @@ package s3
 import "strings"
 
 // Input for parsed S3 event
+// TODO: Write tests
 type Input struct {
 	event map[string]interface{}
 }

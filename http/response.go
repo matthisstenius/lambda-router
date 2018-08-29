@@ -2,16 +2,25 @@ package http
 
 import (
 	"encoding/json"
-
 	"github.com/matthisstenius/logger"
 )
 
 // Response for HTTP event
 type Response struct {
-	StatusCode      int               `json:"statusCode"`
-	Body            interface{}       `json:"body"`
-	Headers         map[string]string `json:"headers"`
-	IsBase64Encoded bool              `json:"isBase64Encoded"`
+	statusCode      int
+	body            interface{}
+	headers         map[string]string
+	isBase64Encoded bool
+}
+
+// Payload formatted response data
+func (r *Response) Payload() interface{} {
+	return map[string]interface{}{
+		"statusCode":      r.statusCode,
+		"body":            r.body,
+		"headers":         r.headers,
+		"isBase64Encoded": r.isBase64Encoded,
+	}
 }
 
 // NewResponse initialize success response
@@ -20,14 +29,14 @@ func NewResponse(status int, body interface{}) *Response {
 	logger.WithFields(logger.Fields{"body": string(encoded)}).Info("response")
 
 	return &Response{
-		StatusCode: status,
-		Body:       string(encoded),
-		Headers: map[string]string{
-			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
+		statusCode: status,
+		body:       string(encoded),
+		headers: map[string]string{
+			"Access-Control-Allow-headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
 			"Access-Control-Allow-Methods": "*",
 			"Access-Control-Allow-Origin":  "*",
 		},
-		IsBase64Encoded: false,
+		isBase64Encoded: false,
 	}
 }
 
@@ -41,13 +50,13 @@ func NewErrorResponse(status int, error interface{}) *Response {
 	}).Info("Error response")
 
 	return &Response{
-		StatusCode: status,
-		Body:       string(encoded),
-		Headers: map[string]string{
-			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
+		statusCode: status,
+		body:       string(encoded),
+		headers: map[string]string{
+			"Access-Control-Allow-headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
 			"Access-Control-Allow-Methods": "*",
 			"Access-Control-Allow-Origin":  "*",
 		},
-		IsBase64Encoded: false,
+		isBase64Encoded: false,
 	}
 }

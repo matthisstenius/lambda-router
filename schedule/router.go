@@ -1,33 +1,41 @@
 package schedule
 
-import "errors"
+import (
+	"errors"
+	"github.com/matthisstenius/lambda-router/domain"
+)
+
+const EventSource = "schedule"
+
+// Route mapping for handler
+type Route struct {
+	Handler func() domain.Response
+}
 
 // Routes mappings for Schedule handlers
-type Routes map[string]func() *Response
+type Routes map[string]Route
 
 // Router for Schedule events
 type Router struct {
-	event  map[string]interface{}
 	routes Routes
 }
 
 // NewRouter initializer
-func NewRouter(e map[string]interface{}, routes Routes) *Router {
-	return &Router{event: e, routes: routes}
+func NewRouter(routes Routes) *Router {
+	return &Router{routes: routes}
 }
 
-// Dispatch incoming event to corresponding handler
-func (r *Router) Dispatch() (*Response, error) {
-	resource := r.event["resource"].(string)
-	handler, found := r.routes[resource]
+// Route incoming event to corresponding handler
+func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
+	resource := evt["resource"].(string)
+	route, found := r.routes[resource]
 	if !found {
 		return nil, errors.New("handler func missing")
 	}
-
-	return &*handler(), nil
+	return route.Handler(), nil
 }
 
 // IsMatch for Schedule event
-func IsMatch(e map[string]interface{}) bool {
-	return e["type"] == "schedule"
+func (r *Router) IsMatch(e map[string]interface{}) bool {
+	return e["eventSource"] == EventSource
 }

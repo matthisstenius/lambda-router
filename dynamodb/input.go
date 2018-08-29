@@ -9,6 +9,7 @@ import (
 )
 
 // Input for parsed DynamoDB event
+// TODO: Write tests
 type Input struct {
 	event map[string]interface{}
 }
@@ -18,7 +19,7 @@ func NewInput(e map[string]interface{}) *Input {
 	return &Input{event: e}
 }
 
-// ParseOldImage from DynamoDB dynamodb event
+// ParseOldImage from DynamoDB event
 func (i *Input) ParseOldImage(out interface{}) error {
 	record := i.event["Records"].([]interface{})[0]
 	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["OldImage"].(map[string]interface{})
@@ -35,7 +36,7 @@ func (i *Input) ParseOldImage(out interface{}) error {
 	return nil
 }
 
-// ParseNewImage from DynamoDB dynamodb event
+// ParseNewImage from DynamoDB event
 func (i *Input) ParseNewImage(out interface{}) error {
 	record := i.event["Records"].([]interface{})[0]
 	image, ok := record.(map[string]interface{})["dynamodb"].(map[string]interface{})["NewImage"].(map[string]interface{})
@@ -71,7 +72,7 @@ func (i *Input) unmarshalAttributes(attributes map[string]interface{}, out inter
 	return nil
 }
 
-// Recursively flattens DynamoDB dynamodb attributes into something Go can marshal/unmarshal
+// Recursively flattens DynamoDB attributes into something Go can marshal/unmarshal
 func (i *Input) recursivelyFlattenStreamAttributes(attributes map[string]interface{}) map[string]interface{} {
 	tmp := make(map[string]interface{})
 	for val := range i.flattenStreamAttributes(attributes) {
@@ -83,13 +84,13 @@ func (i *Input) recursivelyFlattenStreamAttributes(attributes map[string]interfa
 	return tmp
 }
 
-// Flattens DynamoDB dynamodb image attributes into something Go can marshal/unmrshal
+// Flattens DynamoDB  image attributes into something Go can marshal/unmarshal
 func (i *Input) flattenStreamAttributes(attributes map[string]interface{}) <-chan []interface{} {
 	ch := make(chan []interface{})
 	go func() {
 		for key, value := range attributes {
 			for k, v := range value.(map[string]interface{}) {
-				// Stream dynamodb format ints as strings so we need to cast them back to ints
+				// Stream dynamodb format int as strings so we need to cast them back to int
 				if k == "N" {
 					v, _ = strconv.Atoi(v.(string))
 				}
