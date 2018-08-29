@@ -7,5 +7,5 @@ type Response struct {
 
 // Payload mock implementation
 func (r *Response) Payload() interface{} {
-	return ""
+	return "No payload"
 }

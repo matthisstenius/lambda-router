@@ -7,7 +7,7 @@ type Response struct{}
 
 // Payload data
 func (r *Response) Payload() interface{} {
-	return ""
+	return "No payload"
 }
 
 // NewResponse initializer

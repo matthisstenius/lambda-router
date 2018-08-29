@@ -13,6 +13,7 @@ type Response struct {
 	isBase64Encoded bool
 }
 
+// Payload formatted response data
 func (r *Response) Payload() interface{} {
 	return map[string]interface{}{
 		"statusCode":      r.statusCode,

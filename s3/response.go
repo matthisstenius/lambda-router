@@ -5,9 +5,9 @@ import "github.com/matthisstenius/logger"
 // Response for S3 event
 type Response struct{}
 
-// Payload response data
+// Payload formatted response data
 func (r *Response) Payload() interface{} {
-	return ""
+	return "No payload"
 }
 
 // NewResponse initializer
