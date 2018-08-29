@@ -1,0 +1,4 @@
+lamguage: go
+go:
+  - master
+script: make test
