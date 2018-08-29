@@ -6,5 +6,5 @@ release:
 .PHONY: release
 
 test:
-	vgo test ./$(TEST_PACKAGE) -v -coverprofile=coverage.out
+	go test ./$(TEST_PACKAGE) -v -coverprofile=coverage.out
 .PHONY: test

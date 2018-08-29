@@ -35,7 +35,7 @@ func (e *Event) Handle(event interface{}) (interface{}, error) {
 	}).Info("Incoming event")
 	defer e.logPanic()
 
-	var response interface{}
+	var response domain.Response
 	var err error
 	switch true {
 	case e.config.HTTP.IsMatch(evt):
@@ -56,7 +56,11 @@ func (e *Event) Handle(event interface{}) (interface{}, error) {
 	default:
 		response, err = nil, errors.New("unknown event")
 	}
-	return response, err
+
+	if response != nil {
+		return response.Payload(), err
+	}
+	return nil, err
 }
 
 func (e *Event) logPanic() {

@@ -3,14 +3,15 @@ package http
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/matthisstenius/lambda-router/domain"
 )
 
 type Route struct {
-	Handler func(i *Input) *Response
-	Access  AccessProvider
+	Handler func(i *Input) domain.Response
+	Access  *domain.Access
 }
 
 // Routes mappings for HTTP handlers
@@ -38,11 +39,16 @@ func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
 		}
 	}
 
-	handler, ok := r.routes[resource][method]
+	route, ok := r.routes[resource][method]
 	if !ok {
 		return nil, errors.New("handler func missing")
 	}
-	return &*handler.Handler(NewInput(evt)), nil
+
+	if !r.hasAccess(route.Access, evt) {
+		return NewErrorResponse(http.StatusForbidden, "Access denied"), nil
+	}
+
+	return route.Handler(NewInput(evt)), nil
 }
 
 // IsMatch for HTTP event
@@ -51,4 +57,29 @@ func (r *Router) IsMatch(e map[string]interface{}) bool {
 		return true
 	}
 	return false
+}
+
+func (r *Router) hasAccess(access *domain.Access, evt map[string]interface{}) bool {
+	if access == nil {
+		return true
+	}
+
+	reqRoles, err := access.Provider.Roles(evt)
+	if err != nil {
+		return false
+	}
+
+	var roleMatch bool
+	for _, re := range reqRoles {
+		for _, r := range access.Roles {
+			if re == r {
+				roleMatch = true
+			}
+		}
+	}
+
+	if !roleMatch {
+		return false
+	}
+	return true
 }

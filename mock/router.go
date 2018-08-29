@@ -2,18 +2,18 @@ package mock
 
 import "github.com/matthisstenius/lambda-router/domain"
 
-// SNSRouter mock
-type SNSRouter struct {
+// Router mock
+type Router struct {
 	DispatchFn func(evt map[string]interface{}) (domain.Response, error)
 	IsMatchFn  func(evt map[string]interface{}) bool
 }
 
 // Route mock implementation
-func (sr *SNSRouter) Route(evt map[string]interface{}) (domain.Response, error) {
-	return sr.DispatchFn(evt)
+func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
+	return r.DispatchFn(evt)
 }
 
 // IsMatch mock implementation
-func (sr *SNSRouter) IsMatch(evt map[string]interface{}) bool {
-	return sr.IsMatchFn(evt)
+func (r *Router) IsMatch(evt map[string]interface{}) bool {
+	return r.IsMatchFn(evt)
 }

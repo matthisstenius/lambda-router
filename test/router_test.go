@@ -11,19 +11,19 @@ import (
 )
 
 var (
-	httpRouterMock      *mock.HTTPRouter
-	dynamoRouterMock    *mock.DynamoRouter
-	s3RouterMock        *mock.S3Router
-	scheduledRouterMock *mock.ScheduledRouter
-	snsRouterMock       *mock.SNSRouter
+	httpRouterMock      *mock.Router
+	dynamoRouterMock    *mock.Router
+	s3RouterMock        *mock.Router
+	scheduledRouterMock *mock.Router
+	snsRouterMock       *mock.Router
 )
 
 func init() {
-	httpRouterMock = new(mock.HTTPRouter)
-	dynamoRouterMock = new(mock.DynamoRouter)
-	s3RouterMock = new(mock.S3Router)
-	scheduledRouterMock = new(mock.ScheduledRouter)
-	snsRouterMock = new(mock.SNSRouter)
+	httpRouterMock = new(mock.Router)
+	dynamoRouterMock = new(mock.Router)
+	s3RouterMock = new(mock.Router)
+	scheduledRouterMock = new(mock.Router)
+	snsRouterMock = new(mock.Router)
 }
 
 func TestStart(t *testing.T) {
@@ -39,22 +39,27 @@ func TestStart(t *testing.T) {
 	}{
 		{
 			Name:   "it should route http event",
+			Res:    new(mock.Response),
 			IsHTTP: true,
 		},
 		{
 			Name:     "it should route dynamoDB stream event",
+			Res:      new(mock.Response),
 			IsDynamo: true,
 		},
 		{
 			Name: "it should route S3 event",
+			Res:  new(mock.Response),
 			IsS3: true,
 		},
 		{
 			Name:        "it should route scheduled event",
+			Res:         new(mock.Response),
 			IsScheduled: true,
 		},
 		{
 			Name:  "it should route SNS event",
+			Res:   new(mock.Response),
 			IsSNS: true,
 		},
 		{
