@@ -2,7 +2,7 @@ package s3
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
+	"github.com/matthisstenius/lambda-router/v2/domain"
 	"regexp"
 	"strings"
 )

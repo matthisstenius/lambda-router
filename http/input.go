@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
+	"github.com/matthisstenius/lambda-router/v2/domain"
 )
 
 // Input for parsed HTTP event

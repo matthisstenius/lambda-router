@@ -2,8 +2,8 @@ package http
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
-	"github.com/matthisstenius/lambda-router/http/cognito"
+	"github.com/matthisstenius/lambda-router/v2/domain"
+	"github.com/matthisstenius/lambda-router/v2/http/cognito"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

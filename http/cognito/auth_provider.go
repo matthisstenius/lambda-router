@@ -3,7 +3,7 @@ package cognito
 import (
 	"encoding/json"
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
+	"github.com/matthisstenius/lambda-router/v2/domain"
 	"github.com/matthisstenius/logger"
 )
 

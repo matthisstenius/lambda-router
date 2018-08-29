@@ -2,8 +2,8 @@ package dynamodb
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
-	"github.com/matthisstenius/lambda-router/dynamodb"
+	"github.com/matthisstenius/lambda-router/v2/domain"
+	"github.com/matthisstenius/lambda-router/v2/dynamodb"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

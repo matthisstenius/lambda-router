@@ -23,6 +23,8 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/matthisstenius/lambda-router v1.3.0 h1:1UirfIHsNb+NTXCL1HfmZb2AcjnjkVe0rq7EC+RdvJ0=
+github.com/matthisstenius/lambda-router v1.3.0/go.mod h1:Tw87mLgmGWvfxumEKDojBH5s8PYJu5jGK/c88oo4OtI=
 github.com/matthisstenius/logger v1.3.0 h1:vd8Duv8HvhPnIGpprVzWaV86Y7BqJ8Pjc2T8WINYP6E=
 github.com/matthisstenius/logger v1.3.0/go.mod h1:ICCJk78EFIlC+qSBNHr2gZM2wHKtZfWTsC2pG9FwXV0=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=

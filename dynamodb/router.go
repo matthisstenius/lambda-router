@@ -2,7 +2,7 @@ package dynamodb
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/domain"
+	"github.com/matthisstenius/lambda-router/v2/domain"
 )
 
 const EventSource = "aws:dynamodb"
