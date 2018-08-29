@@ -56,10 +56,6 @@ func (i *Input) ParseBody(out interface{}) error {
 	}
 
 	if err := json.Unmarshal([]byte(body.(string)), &out); err != nil {
-		logger.WithFields(logger.Fields{
-			"method": "HTTPInput",
-			"error":  err,
-		}).Error("could not parse body as JSON")
 		return errors.New("could not parse body as JSON")
 	}
 	return nil

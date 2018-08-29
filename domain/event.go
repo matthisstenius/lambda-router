@@ -11,11 +11,13 @@ type Router interface {
 	IsMatch(evt map[string]interface{}) bool
 }
 
+// Access DTO for roles and provider
 type Access struct {
 	Roles    []string
 	Provider AccessProvider
 }
 
+// AccessProvider used for interpret incoming access parameters in event
 type AccessProvider interface {
 	Roles(evt map[string]interface{}) ([]string, error)
 }

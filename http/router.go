@@ -9,6 +9,7 @@ import (
 	"github.com/matthisstenius/lambda-router/domain"
 )
 
+// Route mapping for handler and optional access
 type Route struct {
 	Handler func(i *Input) domain.Response
 	Access  *domain.Access
