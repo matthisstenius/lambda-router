@@ -1,14 +1,14 @@
-package http
+package cognito
 
 import (
 	"errors"
 )
 
-// CognitoAccessProvider cognito implementation
-type CognitoAccessProvider struct{}
+// AccessProvider cognito implementation
+type AccessProvider struct{}
 
-// Roles parse roles from given event
-func (ca *CognitoAccessProvider) Roles(evt map[string]interface{}) ([]string, error) {
+// ParseRoles parse roles from given event
+func (ap *AccessProvider) ParseRoles(evt map[string]interface{}) ([]string, error) {
 	reqContext := evt["requestContext"]
 	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
 	if !ok || authorizer == nil {

@@ -65,7 +65,7 @@ func (r *Router) hasAccess(access *domain.Access, evt map[string]interface{}) bo
 		return true
 	}
 
-	reqRoles, err := access.Provider.Roles(evt)
+	reqRoles, err := access.Provider.ParseRoles(evt)
 	if err != nil {
 		return false
 	}

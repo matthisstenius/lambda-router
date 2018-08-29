@@ -19,5 +19,12 @@ type Access struct {
 
 // AccessProvider used for interpret incoming access parameters in event
 type AccessProvider interface {
-	Roles(evt map[string]interface{}) ([]string, error)
+	ParseRoles(evt map[string]interface{}) ([]string, error)
+}
+
+type AuthProperties map[string]interface{}
+
+// AuthProvider used for interpret incoming authorization
+type AuthProvider interface {
+	ParseAuth(evt map[string]interface{}) (AuthProperties, error)
 }

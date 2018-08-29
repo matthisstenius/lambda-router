@@ -2,12 +2,12 @@ package http
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/http"
+	"github.com/matthisstenius/lambda-router/http/cognito"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var cognitoAccessprovider = new(http.CognitoAccessProvider)
+var accessProvider = new(cognito.AccessProvider)
 
 func TestCognitoProvider(t *testing.T) {
 	tests := []struct {
@@ -54,7 +54,7 @@ func TestCognitoProvider(t *testing.T) {
 	for _, td := range tests {
 		t.Run(td.Name, func(t *testing.T) {
 			// When
-			roles, err := cognitoAccessprovider.Roles(td.Event)
+			roles, err := accessProvider.ParseRoles(td.Event)
 
 			// Then
 			assert.Equal(t, td.Error, err)

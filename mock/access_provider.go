@@ -6,6 +6,6 @@ type AccessProvider struct {
 }
 
 // Roles mock implementation
-func (ap *AccessProvider) Roles(evt map[string]interface{}) ([]string, error) {
+func (ap *AccessProvider) ParseRoles(evt map[string]interface{}) ([]string, error) {
 	return ap.RolesFn(evt)
 }
