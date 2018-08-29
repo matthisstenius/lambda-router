@@ -8,6 +8,7 @@ import (
 )
 
 // Input for parsed SNS event
+// TODO: Write tests
 type Input struct {
 	event map[string]interface{}
 }
