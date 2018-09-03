@@ -94,7 +94,7 @@ func TestRoute(t *testing.T) {
 			},
 			Path:       "/test/mismatch",
 			HTTPMethod: internalHTTP.MethodGet,
-			Error:      errors.New("handler func missing"),
+			StatusCode: internalHTTP.StatusNotFound,
 		},
 		{
 			Name: "it should handle method mismatch",
@@ -104,7 +104,7 @@ func TestRoute(t *testing.T) {
 			},
 			Path:       "/test/path",
 			HTTPMethod: internalHTTP.MethodGet,
-			Error:      errors.New("handler func missing"),
+			StatusCode: internalHTTP.StatusNotFound,
 		},
 	}
 

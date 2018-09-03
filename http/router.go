@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -42,7 +41,7 @@ func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
 
 	route, ok := r.routes[resource][method]
 	if !ok {
-		return nil, errors.New("handler func missing")
+		return NewErrorResponse(http.StatusNotFound, "No matching handler found"), nil
 	}
 
 	if !r.hasAccess(route.Access, evt) {
