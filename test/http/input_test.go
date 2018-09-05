@@ -57,7 +57,7 @@ func TestGetQueryParam(t *testing.T) {
 		Name  string
 		Event map[string]interface{}
 		Param string
-		Value string
+		Value interface{}
 	}{
 		{
 			Name: "it should succeed",
@@ -70,6 +70,16 @@ func TestGetQueryParam(t *testing.T) {
 			Value: "test value",
 		},
 		{
+			Name: "it should parse JSON",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": `["Test value"]`,
+				},
+			},
+			Param: "testParam",
+			Value: []interface{}{"Test value"},
+		},
+		{
 			Name: "it should handle missing param",
 			Event: map[string]interface{}{
 				"queryStringParameters": map[string]interface{}{
@@ -77,7 +87,7 @@ func TestGetQueryParam(t *testing.T) {
 				},
 			},
 			Param: "otherParam",
-			Value: "",
+			Value: nil,
 		},
 	}
 

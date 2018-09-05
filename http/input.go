@@ -30,15 +30,20 @@ func (i *Input) GetPathParam(param string) string {
 }
 
 // GetQueryParam in current request
-func (i *Input) GetQueryParam(param string) string {
+func (i *Input) GetQueryParam(param string) interface{} {
 	params, ok := i.event["queryStringParameters"]
 	if !ok || params == nil {
-		return ""
+		return nil
 	}
 
 	value, ok := params.(map[string]interface{})[param]
 	if !ok {
-		return ""
+		return nil
+	}
+
+	var out interface{}
+	if err := json.Unmarshal([]byte(value.(string)), &out); err == nil {
+		return out
 	}
 	return value.(string)
 }
