@@ -30,22 +30,25 @@ func (i *Input) GetPathParam(param string) string {
 }
 
 // GetQueryParam in current request
-func (i *Input) GetQueryParam(param string) interface{} {
+func (i *Input) GetQueryParam(param string) string {
 	params, ok := i.event["queryStringParameters"]
 	if !ok || params == nil {
-		return nil
+		return ""
 	}
 
 	value, ok := params.(map[string]interface{})[param]
 	if !ok {
-		return nil
-	}
-
-	var out interface{}
-	if err := json.Unmarshal([]byte(value.(string)), &out); err == nil {
-		return out
+		return ""
 	}
 	return value.(string)
+}
+
+// ParseQueryParam in current request as JSON
+func (i *Input) ParseQueryParam(param string, out interface{}) error {
+	if err := json.Unmarshal([]byte(i.GetQueryParam(param)), &out); err != nil {
+		return errors.New("could not parse param as JSON")
+	}
+	return nil
 }
 
 // ParseBody in current request

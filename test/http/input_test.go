@@ -70,16 +70,6 @@ func TestGetQueryParam(t *testing.T) {
 			Value: "test value",
 		},
 		{
-			Name: "it should parse JSON",
-			Event: map[string]interface{}{
-				"queryStringParameters": map[string]interface{}{
-					"testParam": `["Test value"]`,
-				},
-			},
-			Param: "testParam",
-			Value: []interface{}{"Test value"},
-		},
-		{
 			Name: "it should handle missing param",
 			Event: map[string]interface{}{
 				"queryStringParameters": map[string]interface{}{
@@ -87,7 +77,7 @@ func TestGetQueryParam(t *testing.T) {
 				},
 			},
 			Param: "otherParam",
-			Value: nil,
+			Value: "",
 		},
 	}
 
@@ -101,6 +91,49 @@ func TestGetQueryParam(t *testing.T) {
 
 			// Then
 			assert.Equal(t, td.Value, value)
+		})
+	}
+}
+
+func TestParseQueryParam(t *testing.T) {
+	tests := []struct {
+		Name          string
+		Event         map[string]interface{}
+		Param         string
+		Out           []string
+		ExpectedValue []string
+		Error         error
+	}{
+		{
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": `["Test value"]`,
+				},
+			},
+			Param:         "testParam",
+			ExpectedValue: []string{"Test value"},
+		},
+		{
+			Name: "it should handle invalid JSON",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": `Test value`,
+				},
+			},
+			Param: "testParam",
+			Error: errors.New("could not parse param as JSON"),
+		},
+	}
+
+	for _, td := range tests {
+		t.Run(td.Name, func(t *testing.T) {
+			input := http.NewInput(td.Event)
+			err := input.ParseQueryParam(td.Param, &td.Out)
+
+			// Then
+			assert.Equal(t, td.Error, err)
+			assert.Equal(t, td.ExpectedValue, td.Out)
 		})
 	}
 }
