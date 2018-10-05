@@ -28,42 +28,56 @@ func init() {
 
 func TestStart(t *testing.T) {
 	tests := []struct {
-		Name        string
-		Res         domain.Response
-		IsHTTP      bool
-		IsDynamo    bool
-		IsS3        bool
-		IsScheduled bool
-		IsSNS       bool
-		Error       error
+		Name            string
+		Res             domain.Response
+		HTTPRouter      *mock.Router
+		DynamoRouter    *mock.Router
+		S3Router        *mock.Router
+		SNSRouter       *mock.Router
+		ScheduledRouter *mock.Router
+		IsHTTP          bool
+		IsDynamo        bool
+		IsS3            bool
+		IsScheduled     bool
+		IsSNS           bool
+		Error           error
 	}{
 		{
-			Name:   "it should route http event",
-			Res:    new(mock.Response),
-			IsHTTP: true,
+			Name:       "it should route http event",
+			Res:        new(mock.Response),
+			HTTPRouter: httpRouterMock,
+			IsHTTP:     true,
 		},
 		{
-			Name:     "it should route dynamoDB stream event",
+			Name:         "it should route dynamoDB stream event",
+			Res:          new(mock.Response),
+			DynamoRouter: dynamoRouterMock,
+			IsDynamo:     true,
+		},
+		{
+			Name:     "it should route S3 event",
 			Res:      new(mock.Response),
-			IsDynamo: true,
+			S3Router: s3RouterMock,
+			IsS3:     true,
 		},
 		{
-			Name: "it should route S3 event",
-			Res:  new(mock.Response),
-			IsS3: true,
+			Name:            "it should route scheduled event",
+			Res:             new(mock.Response),
+			ScheduledRouter: scheduledRouterMock,
+			IsScheduled:     true,
 		},
 		{
-			Name:        "it should route scheduled event",
-			Res:         new(mock.Response),
-			IsScheduled: true,
-		},
-		{
-			Name:  "it should route SNS event",
-			Res:   new(mock.Response),
-			IsSNS: true,
+			Name:      "it should route SNS event",
+			Res:       new(mock.Response),
+			SNSRouter: snsRouterMock,
+			IsSNS:     true,
 		},
 		{
 			Name:  "it should handle unknown event",
+			Error: errors.New("unknown event"),
+		},
+		{
+			Name:  "it should handle missing router in config",
 			Error: errors.New("unknown event"),
 		},
 	}
@@ -71,52 +85,56 @@ func TestStart(t *testing.T) {
 	for _, td := range tests {
 		t.Run(td.Name, func(t *testing.T) {
 			// Given
-			config := router.Config{
-				HTTP:      httpRouterMock,
-				DynamoDB:  dynamoRouterMock,
-				S3:        s3RouterMock,
-				Scheduled: scheduledRouterMock,
-				SNS:       snsRouterMock,
-			}
+			config := router.Config{}
 
-			httpRouterMock.IsMatchFn = func(evt map[string]interface{}) bool {
-				return td.IsHTTP
+			if td.HTTPRouter != nil {
+				td.HTTPRouter.IsMatchFn = func(evt map[string]interface{}) bool {
+					return td.IsHTTP
+				}
+				td.HTTPRouter.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
+					return td.Res, td.Error
+				}
+				config.HTTP = td.HTTPRouter
 			}
+			if td.DynamoRouter != nil {
+				td.DynamoRouter.IsMatchFn = func(evt map[string]interface{}) bool {
+					return td.IsDynamo
+				}
 
-			httpRouterMock.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
-				return td.Res, td.Error
+				td.DynamoRouter.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
+					return td.Res, td.Error
+				}
+				config.DynamoDB = td.DynamoRouter
 			}
+			if td.S3Router != nil {
+				td.S3Router.IsMatchFn = func(evt map[string]interface{}) bool {
+					return td.IsS3
+				}
 
-			dynamoRouterMock.IsMatchFn = func(evt map[string]interface{}) bool {
-				return td.IsDynamo
+				td.S3Router.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
+					return td.Res, td.Error
+				}
+				config.S3 = td.S3Router
 			}
+			if td.ScheduledRouter != nil {
+				td.ScheduledRouter.IsMatchFn = func(evt map[string]interface{}) bool {
+					return td.IsScheduled
+				}
 
-			dynamoRouterMock.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
-				return td.Res, td.Error
+				td.ScheduledRouter.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
+					return td.Res, td.Error
+				}
+				config.Scheduled = td.ScheduledRouter
 			}
+			if td.SNSRouter != nil {
+				td.SNSRouter.IsMatchFn = func(evt map[string]interface{}) bool {
+					return td.IsSNS
+				}
 
-			s3RouterMock.IsMatchFn = func(evt map[string]interface{}) bool {
-				return td.IsS3
-			}
-
-			s3RouterMock.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
-				return td.Res, td.Error
-			}
-
-			scheduledRouterMock.IsMatchFn = func(evt map[string]interface{}) bool {
-				return td.IsScheduled
-			}
-
-			scheduledRouterMock.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
-				return td.Res, td.Error
-			}
-
-			snsRouterMock.IsMatchFn = func(evt map[string]interface{}) bool {
-				return td.IsSNS
-			}
-
-			snsRouterMock.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
-				return td.Res, td.Error
+				td.SNSRouter.DispatchFn = func(evt map[string]interface{}) (domain.Response, error) {
+					return td.Res, td.Error
+				}
+				config.SNS = td.SNSRouter
 			}
 
 			// When

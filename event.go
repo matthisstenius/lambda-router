@@ -38,19 +38,19 @@ func (e *Event) Handle(event interface{}) (interface{}, error) {
 	var response domain.Response
 	var err error
 	switch true {
-	case e.config.HTTP.IsMatch(evt):
+	case e.config.HTTP != nil && e.config.HTTP.IsMatch(evt):
 		response, err = e.config.HTTP.Route(evt)
 		break
-	case e.config.Scheduled.IsMatch(evt):
+	case e.config.Scheduled != nil && e.config.Scheduled.IsMatch(evt):
 		response, err = e.config.Scheduled.Route(evt)
 		break
-	case e.config.DynamoDB.IsMatch(evt):
+	case e.config.DynamoDB != nil && e.config.DynamoDB.IsMatch(evt):
 		response, err = e.config.DynamoDB.Route(evt)
 		break
-	case e.config.S3.IsMatch(evt):
+	case e.config.S3 != nil && e.config.S3.IsMatch(evt):
 		response, err = e.config.S3.Route(evt)
 		break
-	case e.config.SNS.IsMatch(evt):
+	case e.config.SNS != nil && e.config.SNS.IsMatch(evt):
 		response, err = e.config.SNS.Route(evt)
 		break
 	default:
