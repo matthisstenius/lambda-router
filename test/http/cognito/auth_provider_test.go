@@ -2,7 +2,8 @@ package cognito
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v2/http/cognito"
+	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v3/http/cognito"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,7 +14,7 @@ func TestCognitoAuthProvider(t *testing.T) {
 	tests := []struct {
 		Name      string
 		Event     map[string]interface{}
-		AuthProps cognito.AuthProperties
+		AuthProps domain.AuthProperties
 		Error     error
 	}{
 		{

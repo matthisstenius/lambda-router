@@ -2,9 +2,9 @@ package http
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v2/domain"
-	"github.com/matthisstenius/lambda-router/v2/http"
-	"github.com/matthisstenius/lambda-router/v2/mock"
+	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v3/http"
+	"github.com/matthisstenius/lambda-router/v3/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

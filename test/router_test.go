@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"errors"
-	"github.com/matthisstenius/lambda-router/v2"
-	"github.com/matthisstenius/lambda-router/v2/domain"
-	"github.com/matthisstenius/lambda-router/v2/mock"
+	"github.com/matthisstenius/lambda-router/v3"
+	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v3/mock"
 	"github.com/stretchr/testify/assert"
 )
 

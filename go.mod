@@ -9,7 +9,8 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/kr/pretty v0.1.0
 	github.com/matthisstenius/lambda-router v1.3.0
-	github.com/matthisstenius/logger v1.3.0
+	github.com/matthisstenius/lambda-router/v2 v2.3.2
+	github.com/matthisstenius/logger v1.4.0
 	github.com/onsi/ginkgo v1.6.0
 	github.com/onsi/gomega v1.4.1
 	github.com/pmezard/go-difflib v1.0.0

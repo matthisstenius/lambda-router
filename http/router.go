@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/matthisstenius/lambda-router/v2/domain"
+	"github.com/matthisstenius/lambda-router/v3/domain"
 )
 
 // Route mapping for handler and optional access

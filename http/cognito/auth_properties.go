@@ -6,8 +6,8 @@ type AuthProperties struct {
 }
 
 // NewAuthProperties initializer
-func NewAuthProperties(props map[string]interface{}) AuthProperties {
-	return AuthProperties{props: props}
+func NewAuthProperties(props map[string]interface{}) *AuthProperties {
+	return &AuthProperties{props: props}
 }
 
 // GetParam from claims

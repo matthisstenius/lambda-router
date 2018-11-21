@@ -2,7 +2,7 @@ package cognito
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v2/http/cognito"
+	"github.com/matthisstenius/lambda-router/v3/http/cognito"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

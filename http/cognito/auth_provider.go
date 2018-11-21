@@ -3,6 +3,7 @@ package cognito
 import (
 	"encoding/json"
 	"errors"
+	"github.com/matthisstenius/lambda-router/v3/domain"
 	"github.com/matthisstenius/logger"
 )
 
@@ -10,16 +11,16 @@ import (
 type AuthProvider struct{}
 
 // ParseAuth data from event
-func (ap *AuthProvider) ParseAuth(evt map[string]interface{}) (AuthProperties, error) {
+func (ap *AuthProvider) ParseAuth(evt map[string]interface{}) (domain.AuthProperties, error) {
 	reqContext := evt["requestContext"]
 	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
 	if !ok || authorizer == nil {
-		return AuthProperties{}, errors.New("authorizer index missing in event")
+		return nil, errors.New("authorizer index missing in event")
 	}
 
 	claims, ok := authorizer.(map[string]interface{})["claims"]
 	if !ok {
-		return AuthProperties{}, errors.New("claims index missing in authorizer")
+		return nil, errors.New("claims index missing in authorizer")
 	}
 
 	var authProps map[string]interface{}
@@ -29,7 +30,7 @@ func (ap *AuthProvider) ParseAuth(evt map[string]interface{}) (AuthProperties, e
 			logger.WithFields(logger.Fields{
 				"error": err,
 			}).Error("CognitoAuthProvider::ParseAuth() Could not parse claims as JSON")
-			return AuthProperties{}, errors.New("could not parse claims as JSON")
+			return nil, errors.New("could not parse claims as JSON")
 		}
 	} else {
 		authProps = claims.(map[string]interface{})

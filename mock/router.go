@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/matthisstenius/lambda-router/v2/domain"
+import "github.com/matthisstenius/lambda-router/v3/domain"
 
 // Router mock
 type Router struct {
