@@ -1,4 +1,4 @@
-module github.com/matthisstenius/lambda-router/v2
+module github.com/matthisstenius/lambda-router/v3
 
 require (
 	github.com/bitly/go-simplejson v0.5.0
