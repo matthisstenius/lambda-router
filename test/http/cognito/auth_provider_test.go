@@ -1,8 +1,7 @@
-package http
+package cognito
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v2/domain"
 	"github.com/matthisstenius/lambda-router/v2/http/cognito"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,7 +13,7 @@ func TestCognitoAuthProvider(t *testing.T) {
 	tests := []struct {
 		Name      string
 		Event     map[string]interface{}
-		AuthProps domain.AuthProperties
+		AuthProps cognito.AuthProperties
 		Error     error
 	}{
 		{
@@ -28,7 +27,7 @@ func TestCognitoAuthProvider(t *testing.T) {
 					},
 				},
 			},
-			AuthProps: domain.AuthProperties{"custom:id": "12345"},
+			AuthProps: cognito.NewAuthProperties(map[string]interface{}{"custom:id": "12345"}),
 		},
 		{
 			Name: "it should succeed with claims as JSON",
@@ -39,7 +38,7 @@ func TestCognitoAuthProvider(t *testing.T) {
 					},
 				},
 			},
-			AuthProps: domain.AuthProperties{"custom:id": "12345"},
+			AuthProps: cognito.NewAuthProperties(map[string]interface{}{"custom:id": "12345"}),
 		},
 		{
 			Name: "it should handle missing claims index",

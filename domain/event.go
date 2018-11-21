@@ -22,7 +22,11 @@ type AccessProvider interface {
 	ParseRoles(evt map[string]interface{}) ([]string, error)
 }
 
-type AuthProperties map[string]interface{}
+// AuthProperties for current authenticated user
+type AuthProperties interface {
+	GetParam(key string) interface{}
+	HasRole(role string) bool
+}
 
 // AuthProvider used for interpret incoming authorization
 type AuthProvider interface {

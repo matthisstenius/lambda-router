@@ -12,6 +12,6 @@ func (r *Response) Payload() interface{} {
 
 // NewResponse initializer
 func NewResponse(message string) *Response {
-	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewResponse() schedule handler responded")
+	logger.WithFields(logger.Fields{"message": message}).Info("Response::NewResponse() S3 handler responded")
 	return &Response{}
 }
