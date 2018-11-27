@@ -26,7 +26,39 @@ func (i *Input) GetPathParam(param string) string {
 	if !ok {
 		return ""
 	}
-	return value.(string)
+
+	switch v := value.(type) {
+	case string:
+		return v
+	default:
+		encoded, _ := json.Marshal(value)
+		return string(encoded)
+	}
+}
+
+// HasPathParam checks if param exists in path params
+func (i *Input) HasPathParam(param string) bool {
+	params, ok := i.event["pathParameters"]
+	if !ok || params == nil {
+		return false
+	}
+	if _, ok := params.(map[string]interface{})[param]; !ok {
+		return false
+	}
+	return true
+}
+
+// HasQueryParam checks of param exists in request
+func (i *Input) HasQueryParam(param string) bool {
+	params, ok := i.event["queryStringParameters"]
+	if !ok || params == nil {
+		return false
+	}
+
+	if _, ok := params.(map[string]interface{})[param]; !ok {
+		return false
+	}
+	return true
 }
 
 // GetQueryParam in current request
@@ -40,7 +72,14 @@ func (i *Input) GetQueryParam(param string) string {
 	if !ok {
 		return ""
 	}
-	return value.(string)
+
+	switch v := value.(type) {
+	case string:
+		return v
+	default:
+		encoded, _ := json.Marshal(value)
+		return string(encoded)
+	}
 }
 
 // ParseQueryParam in current request as JSON

@@ -29,6 +29,7 @@ github.com/matthisstenius/lambda-router/v2 v2.3.2 h1:sePNxjHiaEwlerIdzhWFisn+2h+
 github.com/matthisstenius/lambda-router/v2 v2.3.2/go.mod h1:Fn7Pu11TNRr7QLC/WQH0XADltUdq1mZ4Nb/zfD+1Hcg=
 github.com/matthisstenius/logger v1.3.0 h1:vd8Duv8HvhPnIGpprVzWaV86Y7BqJ8Pjc2T8WINYP6E=
 github.com/matthisstenius/logger v1.3.0/go.mod h1:ICCJk78EFIlC+qSBNHr2gZM2wHKtZfWTsC2pG9FwXV0=
+github.com/matthisstenius/logger v1.4.0 h1:kBG1swVHi7tUT20gavkGT1YEiDPPZPEOGl+6R4cHUVE=
 github.com/matthisstenius/logger v1.4.0/go.mod h1:ICCJk78EFIlC+qSBNHr2gZM2wHKtZfWTsC2pG9FwXV0=
 github.com/onsi/ginkgo v1.6.0 h1:Ix8l273rp3QzYgXSR+c8d1fTG7UPgYkOSELPhiY/YGw=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

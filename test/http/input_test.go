@@ -36,6 +36,22 @@ func TestGetPathParam(t *testing.T) {
 			Param: "otherParam",
 			Value: "",
 		},
+		{
+			Name: "it should handle none string value by encode to JSON",
+			Event: map[string]interface{}{
+				"pathParameters": map[string]interface{}{
+					"testParam": []interface{}{"Test value"},
+				},
+			},
+			Param: "testParam",
+			Value: `["Test value"]`,
+		},
+		{
+			Name:  "it should handle missing path parameters",
+			Event: map[string]interface{}{},
+			Param: "otherParam",
+			Value: "",
+		},
 	}
 
 	for _, td := range tests {
@@ -48,6 +64,53 @@ func TestGetPathParam(t *testing.T) {
 
 			// Then
 			assert.Equal(t, td.Value, value)
+		})
+	}
+}
+
+func TestHasPathParam(t *testing.T) {
+	tests := []struct {
+		Name  string
+		Event map[string]interface{}
+		Param string
+		Out   bool
+	}{
+		{
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"pathParameters": map[string]interface{}{
+					"testParam": "test value",
+				},
+			},
+			Param: "testParam",
+			Out:   true,
+		},
+		{
+			Name: "it should handle missing param",
+			Event: map[string]interface{}{
+				"pathParameters": map[string]interface{}{
+					"testParam": "test value",
+				},
+			},
+			Param: "otherParam",
+			Out:   false,
+		},
+		{
+			Name:  "it should handle missing path parameters",
+			Event: map[string]interface{}{},
+			Param: "otherParam",
+			Out:   false,
+		},
+	}
+
+	for _, td := range tests {
+		t.Run(td.Name, func(t *testing.T) {
+			// Given, When
+			input := http.NewInput(td.Event)
+			match := input.HasPathParam(td.Param)
+
+			// Then
+			assert.Equal(t, td.Out, match)
 		})
 	}
 }
@@ -79,6 +142,22 @@ func TestGetQueryParam(t *testing.T) {
 			Param: "otherParam",
 			Value: "",
 		},
+		{
+			Name: "it should handle none string value by encode to JSON",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": []interface{}{"Test value"},
+				},
+			},
+			Param: "testParam",
+			Value: `["Test value"]`,
+		},
+		{
+			Name:  "it should handle missing query string parameters",
+			Event: map[string]interface{}{},
+			Param: "otherParam",
+			Value: "",
+		},
 	}
 
 	for _, td := range tests {
@@ -91,6 +170,53 @@ func TestGetQueryParam(t *testing.T) {
 
 			// Then
 			assert.Equal(t, td.Value, value)
+		})
+	}
+}
+
+func TestHasQueryParam(t *testing.T) {
+	tests := []struct {
+		Name  string
+		Event map[string]interface{}
+		Param string
+		Out   bool
+	}{
+		{
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": "test value",
+				},
+			},
+			Param: "testParam",
+			Out:   true,
+		},
+		{
+			Name:  "it should handle missing query string parameters",
+			Event: map[string]interface{}{},
+			Param: "otherParam",
+			Out:   false,
+		},
+		{
+			Name: "it should handle missing param",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": "test value",
+				},
+			},
+			Param: "otherParam",
+			Out:   false,
+		},
+	}
+
+	for _, td := range tests {
+		t.Run(td.Name, func(t *testing.T) {
+			// Given, When
+			input := http.NewInput(td.Event)
+			match := input.HasQueryParam(td.Param)
+
+			// Then
+			assert.Equal(t, td.Out, match)
 		})
 	}
 }
@@ -109,6 +235,16 @@ func TestParseQueryParam(t *testing.T) {
 			Event: map[string]interface{}{
 				"queryStringParameters": map[string]interface{}{
 					"testParam": `["Test value"]`,
+				},
+			},
+			Param:         "testParam",
+			ExpectedValue: []string{"Test value"},
+		},
+		{
+			Name: "it should succeed for parsed JSON",
+			Event: map[string]interface{}{
+				"queryStringParameters": map[string]interface{}{
+					"testParam": []interface{}{"Test value"},
 				},
 			},
 			Param:         "testParam",
