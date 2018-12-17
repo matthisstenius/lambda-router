@@ -20,15 +20,17 @@ func init() {
 
 func TestRoute(t *testing.T) {
 	tests := []struct {
-		Name              string
-		Event             map[string]interface{}
-		Path              string
-		StatusCode        int
-		HTTPMethod        string
-		AccessProviderErr error
-		Roles             []string
-		EventRoles        []string
-		Error             error
+		Name                 string
+		Event                map[string]interface{}
+		Path                 string
+		StatusCode           int
+		MiddlewareStatusCode int
+		HTTPMethod           string
+		AccessProviderErr    error
+		Roles                []string
+		EventRoles           []string
+		Middleware           []http.Middleware
+		Error                error
 	}{
 		{
 			Name: "it should succeed",
@@ -51,6 +53,38 @@ func TestRoute(t *testing.T) {
 			EventRoles: []string{"Admin"},
 			HTTPMethod: internalHTTP.MethodGet,
 			StatusCode: internalHTTP.StatusOK,
+		},
+		{
+			Name: "it should succeed with middleware that returns response",
+			Event: map[string]interface{}{
+				"resource":   "/test/path",
+				"httpMethod": internalHTTP.MethodGet,
+			},
+			Middleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return http.NewErrorResponse(internalHTTP.StatusPaymentRequired, "Error")
+				},
+			},
+			Path:                 "/test/path",
+			HTTPMethod:           internalHTTP.MethodGet,
+			StatusCode:           internalHTTP.StatusOK,
+			MiddlewareStatusCode: internalHTTP.StatusPaymentRequired,
+		},
+		{
+			Name: "it should succeed with middleware that returns nil",
+			Event: map[string]interface{}{
+				"resource":   "/test/path",
+				"httpMethod": internalHTTP.MethodGet,
+			},
+			Middleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return nil
+				},
+			},
+			Path:                 "/test/path",
+			HTTPMethod:           internalHTTP.MethodGet,
+			StatusCode:           internalHTTP.StatusOK,
+			MiddlewareStatusCode: internalHTTP.StatusOK,
 		},
 		{
 			Name: "it should handle access provider error",
@@ -123,6 +157,7 @@ func TestRoute(t *testing.T) {
 								Roles:    td.Roles,
 								Provider: accessProviderMock,
 							},
+							Middleware: td.Middleware,
 						},
 					},
 				}
@@ -133,6 +168,7 @@ func TestRoute(t *testing.T) {
 							Handler: func(i *http.Input) domain.Response {
 								return http.NewResponse(td.StatusCode, "")
 							},
+							Middleware: td.Middleware,
 						},
 					},
 				}
@@ -149,10 +185,14 @@ func TestRoute(t *testing.T) {
 			// Then
 			assert.Equal(t, td.Error, err)
 
-			if td.Error == nil {
-				assert.Equal(t, td.StatusCode, res.Payload().(map[string]interface{})["statusCode"])
-			} else {
+			if td.Error != nil {
 				assert.Nil(t, res)
+				return
+			}
+			if td.MiddlewareStatusCode != 0 {
+				assert.Equal(t, td.MiddlewareStatusCode, res.Payload().(map[string]interface{})["statusCode"])
+			} else {
+				assert.Equal(t, td.StatusCode, res.Payload().(map[string]interface{})["statusCode"])
 			}
 		})
 	}

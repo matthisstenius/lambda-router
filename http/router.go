@@ -8,10 +8,13 @@ import (
 	"github.com/matthisstenius/lambda-router/v3/domain"
 )
 
+type Middleware func(i *Input) domain.Response
+
 // Route mapping for handler and optional access
 type Route struct {
-	Handler func(i *Input) domain.Response
-	Access  *domain.Access
+	Handler    func(i *Input) domain.Response
+	Access     *domain.Access
+	Middleware []Middleware
 }
 
 // Routes mappings for HTTP handlers
@@ -46,6 +49,12 @@ func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
 
 	if !r.hasAccess(route.Access, evt) {
 		return NewErrorResponse(http.StatusForbidden, "Access denied"), nil
+	}
+
+	for _, m := range route.Middleware {
+		if res := m(NewInput(evt)); res != nil {
+			return res, nil
+		}
 	}
 
 	return route.Handler(NewInput(evt)), nil
