@@ -30,6 +30,7 @@ func TestRoute(t *testing.T) {
 		Roles                []string
 		EventRoles           []string
 		Middleware           []http.Middleware
+		GlobalMiddleware     []http.Middleware
 		Error                error
 	}{
 		{
@@ -55,7 +56,60 @@ func TestRoute(t *testing.T) {
 			StatusCode: internalHTTP.StatusOK,
 		},
 		{
-			Name: "it should succeed with middleware that returns response",
+			Name: "it should succeed with global middleware that returns response",
+			Event: map[string]interface{}{
+				"resource":   "/test/path",
+				"httpMethod": internalHTTP.MethodGet,
+			},
+			GlobalMiddleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return http.NewErrorResponse(internalHTTP.StatusPaymentRequired, "Error")
+				},
+			},
+			Path:                 "/test/path",
+			HTTPMethod:           internalHTTP.MethodGet,
+			StatusCode:           internalHTTP.StatusOK,
+			MiddlewareStatusCode: internalHTTP.StatusPaymentRequired,
+		},
+		{
+			Name: "it should succeed with global middleware that returns nil",
+			Event: map[string]interface{}{
+				"resource":   "/test/path",
+				"httpMethod": internalHTTP.MethodGet,
+			},
+			GlobalMiddleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return nil
+				},
+			},
+			Path:                 "/test/path",
+			HTTPMethod:           internalHTTP.MethodGet,
+			StatusCode:           internalHTTP.StatusOK,
+			MiddlewareStatusCode: internalHTTP.StatusOK,
+		},
+		{
+			Name: "it should succeed, route specific middleware should overwrite global",
+			Event: map[string]interface{}{
+				"resource":   "/test/path",
+				"httpMethod": internalHTTP.MethodGet,
+			},
+			GlobalMiddleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return http.NewErrorResponse(internalHTTP.StatusPaymentRequired, "Error")
+				},
+			},
+			Middleware: []http.Middleware{
+				func(i *http.Input) domain.Response {
+					return http.NewErrorResponse(internalHTTP.StatusBadRequest, "Error")
+				},
+			},
+			Path:                 "/test/path",
+			HTTPMethod:           internalHTTP.MethodGet,
+			StatusCode:           internalHTTP.StatusOK,
+			MiddlewareStatusCode: internalHTTP.StatusBadRequest,
+		},
+		{
+			Name: "it should succeed with route specific middleware that returns response",
 			Event: map[string]interface{}{
 				"resource":   "/test/path",
 				"httpMethod": internalHTTP.MethodGet,
@@ -71,7 +125,7 @@ func TestRoute(t *testing.T) {
 			MiddlewareStatusCode: internalHTTP.StatusPaymentRequired,
 		},
 		{
-			Name: "it should succeed with middleware that returns nil",
+			Name: "it should succeed with route specific middleware that returns nil",
 			Event: map[string]interface{}{
 				"resource":   "/test/path",
 				"httpMethod": internalHTTP.MethodGet,
@@ -179,7 +233,7 @@ func TestRoute(t *testing.T) {
 			}
 
 			// When
-			router := http.NewRouter(routes)
+			router := http.NewRouter(routes, td.GlobalMiddleware)
 			res, err := router.Route(td.Event)
 
 			// Then
@@ -221,7 +275,7 @@ func TestIsMatch(t *testing.T) {
 	for _, td := range tests {
 		t.Run(td.Name, func(t *testing.T) {
 			// When
-			router := http.NewRouter(http.Routes{})
+			router := http.NewRouter(http.Routes{}, nil)
 			res := router.IsMatch(td.Event)
 
 			// Then

@@ -22,12 +22,13 @@ type Routes map[string]map[string]Route
 
 // Router for HTTP events
 type Router struct {
-	routes Routes
+	routes     Routes
+	middleware []Middleware
 }
 
 // NewRouter initializer
-func NewRouter(routes Routes) *Router {
-	return &Router{routes: routes}
+func NewRouter(routes Routes, middleware []Middleware) *Router {
+	return &Router{routes: routes, middleware: middleware}
 }
 
 // Dispatch incoming event to corresponding handler
@@ -56,7 +57,11 @@ func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
 			return res, nil
 		}
 	}
-
+	for _, m := range r.middleware {
+		if res := m(NewInput(evt)); res != nil {
+			return res, nil
+		}
+	}
 	return route.Handler(NewInput(evt)), nil
 }
 
