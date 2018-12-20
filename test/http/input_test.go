@@ -174,6 +174,55 @@ func TestGetQueryParam(t *testing.T) {
 	}
 }
 
+func TestGetHeader(t *testing.T) {
+	tests := []struct {
+		Name   string
+		Event  map[string]interface{}
+		Header string
+		Out    interface{}
+	}{
+		{
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"headers": map[string]interface{}{
+					"Test-Header": "test value",
+				},
+			},
+			Header: "Test-Header",
+			Out:    "test value",
+		},
+		{
+			Name: "it should handle missing header",
+			Event: map[string]interface{}{
+				"headers": map[string]interface{}{
+					"Test-Header": "test value",
+				},
+			},
+			Header: "Other-Header",
+			Out:    "",
+		},
+		{
+			Name:   "it should handle missing header",
+			Event:  map[string]interface{}{},
+			Header: "Other-Header",
+			Out:    "",
+		},
+	}
+
+	for _, td := range tests {
+		t.Run(td.Name, func(t *testing.T) {
+			// Given
+			input := http.NewInput(td.Event)
+
+			// When
+			out := input.GetHeader(td.Header)
+
+			// Then
+			assert.Equal(t, td.Out, out)
+		})
+	}
+}
+
 func TestHasQueryParam(t *testing.T) {
 	tests := []struct {
 		Name  string
@@ -314,6 +363,40 @@ func TestParseBody(t *testing.T) {
 			// Then
 			assert.Equal(t, td.Error, err)
 			assert.Equal(t, td.Body, body)
+		})
+	}
+}
+
+func TestRawBody(t *testing.T) {
+	tests := []struct {
+		Name  string
+		Event map[string]interface{}
+		Out   []byte
+	}{
+		{
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"body": `{"message": "hello, world"}`,
+			},
+			Out: []byte(`{"message": "hello, world"}`),
+		},
+		{
+			Name:  "it should handle missing body",
+			Event: map[string]interface{}{},
+			Out:   []byte(""),
+		},
+	}
+
+	for _, td := range tests {
+		t.Run(td.Name, func(t *testing.T) {
+			// Given
+			input := http.NewInput(td.Event)
+
+			// When
+			out := input.RawBody()
+
+			// Then
+			assert.Equal(t, td.Out, out)
 		})
 	}
 }

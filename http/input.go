@@ -82,6 +82,20 @@ func (i *Input) GetQueryParam(param string) string {
 	}
 }
 
+// GetHeader in current request
+func (i *Input) GetHeader(header string) string {
+	params, ok := i.event["headers"]
+	if !ok || params == nil {
+		return ""
+	}
+
+	value, ok := params.(map[string]interface{})[header].(string)
+	if !ok {
+		return ""
+	}
+	return value
+}
+
 // ParseQueryParam in current request as JSON
 func (i *Input) ParseQueryParam(param string, out interface{}) error {
 	if err := json.Unmarshal([]byte(i.GetQueryParam(param)), &out); err != nil {
@@ -109,4 +123,13 @@ func (i *Input) Auth(ap domain.AuthProvider) (domain.AuthProperties, error) {
 		return nil, errors.New("given auth provider is nil")
 	}
 	return ap.ParseAuth(i.event)
+}
+
+// RawBody get raw body form event
+func (i *Input) RawBody() []byte {
+	body, ok := i.event["body"]
+	if !ok || body == nil {
+		return []byte("")
+	}
+	return []byte(body.(string))
 }
