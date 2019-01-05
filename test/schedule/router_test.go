@@ -2,8 +2,8 @@ package schedule
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v3/domain"
-	"github.com/matthisstenius/lambda-router/v3/schedule"
+	"github.com/matthisstenius/lambda-router/v4/domain"
+	"github.com/matthisstenius/lambda-router/v4/schedule"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

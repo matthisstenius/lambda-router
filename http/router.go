@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v4/domain"
 )
 
 type Middleware func(i *Input) domain.Response

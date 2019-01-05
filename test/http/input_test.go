@@ -2,8 +2,8 @@ package http
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v3/domain"
-	"github.com/matthisstenius/lambda-router/v3/http"
+	"github.com/matthisstenius/lambda-router/v4/domain"
+	"github.com/matthisstenius/lambda-router/v4/http"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -399,34 +399,6 @@ func TestRawBody(t *testing.T) {
 		})
 	}
 }
-
-//func TestAuth(t *testing.T) {
-//	tests := []struct {
-//		Name         string
-//		AuthProvider domain.AuthProvider
-//		Error        error
-//	}{
-//		{
-//			Name:         "it should succeed",
-//			AuthProvider: new(mock.AuthProvider),
-//		},
-//		{
-//			Name:  "it should handle missing auth provider",
-//			Error: errors.New("given auth provider is nil"),
-//		},
-//	}
-//
-//	for _, td := range tests {
-//		t.Run(td.Name, func(t *testing.T) {
-//			// When
-//			input := http.NewInput(map[string]interface{}{})
-//			_, err := input.Auth(td.AuthProvider)
-//
-//			// Then
-//			assert.Equal(t, td.Error, err)
-//		})
-//	}
-//}
 
 func TestAuth(t *testing.T) {
 	tests := []struct {

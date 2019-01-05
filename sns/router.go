@@ -2,7 +2,7 @@ package sns
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v4/domain"
 )
 
 const EventSource = "aws:sns"

@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/matthisstenius/lambda-router/v3/domain"
-	"github.com/matthisstenius/lambda-router/v3/http"
+	"github.com/matthisstenius/lambda-router/v4/domain"
+	"github.com/matthisstenius/lambda-router/v4/http"
 	"github.com/stretchr/testify/assert"
 	internalHTTP "net/http"
 	"testing"

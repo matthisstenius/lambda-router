@@ -2,8 +2,8 @@ package s3
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v3/domain"
-	"github.com/matthisstenius/lambda-router/v3/s3"
+	"github.com/matthisstenius/lambda-router/v4/domain"
+	"github.com/matthisstenius/lambda-router/v4/s3"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

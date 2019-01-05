@@ -4,7 +4,7 @@ import (
 	"errors"
 	"runtime/debug"
 
-	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/lambda-router/v4/domain"
 	"github.com/matthisstenius/logger"
 )
 

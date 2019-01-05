@@ -2,8 +2,8 @@ package sns
 
 import (
 	"errors"
-	"github.com/matthisstenius/lambda-router/v3/domain"
-	"github.com/matthisstenius/lambda-router/v3/sns"
+	"github.com/matthisstenius/lambda-router/v4/domain"
+	"github.com/matthisstenius/lambda-router/v4/sns"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
