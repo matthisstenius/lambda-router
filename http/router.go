@@ -48,21 +48,22 @@ func (r *Router) Route(evt map[string]interface{}) (domain.Response, error) {
 		return NewErrorResponse(http.StatusNotFound, "No matching handler found"), nil
 	}
 
-	if !r.hasAccess(route.Access, evt) {
+	i := NewInput(evt)
+	if !r.hasAccess(route.Access, i) {
 		return NewErrorResponse(http.StatusForbidden, "Access denied"), nil
 	}
 
 	for _, m := range route.Middleware {
-		if res := m(NewInput(evt)); res != nil {
+		if res := m(i); res != nil {
 			return res, nil
 		}
 	}
 	for _, m := range r.middleware {
-		if res := m(NewInput(evt)); res != nil {
+		if res := m(i); res != nil {
 			return res, nil
 		}
 	}
-	return route.Handler(NewInput(evt)), nil
+	return route.Handler(i), nil
 }
 
 // IsMatch for HTTP event
@@ -73,27 +74,26 @@ func (r *Router) IsMatch(e map[string]interface{}) bool {
 	return false
 }
 
-func (r *Router) hasAccess(access *domain.Access, evt map[string]interface{}) bool {
+func (r *Router) hasAccess(access *domain.Access, i *Input) bool {
 	if access == nil {
 		return true
 	}
 
-	reqRoles, err := access.Provider.ParseRoles(evt)
+	claims, err := i.Auth()
 	if err != nil {
 		return false
 	}
 
-	var roleMatch bool
-	for _, re := range reqRoles {
-		for _, r := range access.Roles {
-			if re == r {
-				roleMatch = true
-			}
-		}
-	}
-
-	if !roleMatch {
+	reqRole := claims.Get(access.Key)
+	if reqRole == nil {
 		return false
 	}
-	return true
+
+	match := false
+	for _, r := range access.Roles {
+		if reqRole == r {
+			match = true
+		}
+	}
+	return match
 }

@@ -1,22 +1,12 @@
 package http
 
 import (
-	"errors"
 	"github.com/matthisstenius/lambda-router/v3/domain"
 	"github.com/matthisstenius/lambda-router/v3/http"
-	"github.com/matthisstenius/lambda-router/v3/mock"
 	"github.com/stretchr/testify/assert"
 	internalHTTP "net/http"
 	"testing"
 )
-
-var (
-	accessProviderMock *mock.AccessProvider
-)
-
-func init() {
-	accessProviderMock = new(mock.AccessProvider)
-}
 
 func TestRoute(t *testing.T) {
 	tests := []struct {
@@ -26,9 +16,7 @@ func TestRoute(t *testing.T) {
 		StatusCode           int
 		MiddlewareStatusCode int
 		HTTPMethod           string
-		AccessProviderErr    error
 		Roles                []string
-		EventRoles           []string
 		Middleware           []http.Middleware
 		GlobalMiddleware     []http.Middleware
 		Error                error
@@ -48,10 +36,16 @@ func TestRoute(t *testing.T) {
 			Event: map[string]interface{}{
 				"resource":   "/test/path",
 				"httpMethod": internalHTTP.MethodGet,
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{
+						"claims": map[string]interface{}{
+							"cognito:groups": "Admin",
+						},
+					},
+				},
 			},
 			Path:       "/test/path",
 			Roles:      []string{"Admin"},
-			EventRoles: []string{"Admin"},
 			HTTPMethod: internalHTTP.MethodGet,
 			StatusCode: internalHTTP.StatusOK,
 		},
@@ -141,25 +135,20 @@ func TestRoute(t *testing.T) {
 			MiddlewareStatusCode: internalHTTP.StatusOK,
 		},
 		{
-			Name: "it should handle access provider error",
-			Event: map[string]interface{}{
-				"resource":   "/protected/path",
-				"httpMethod": internalHTTP.MethodGet,
-			},
-			Path:              "/protected/path",
-			AccessProviderErr: errors.New("access provider error"),
-			HTTPMethod:        internalHTTP.MethodGet,
-			StatusCode:        internalHTTP.StatusForbidden,
-		},
-		{
 			Name: "it should handle roles mismatch",
 			Event: map[string]interface{}{
 				"resource":   "/test/path",
 				"httpMethod": internalHTTP.MethodGet,
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{
+						"claims": map[string]interface{}{
+							"cognito:groups": "Other",
+						},
+					},
+				},
 			},
 			Path:       "/test/path",
 			Roles:      []string{"Admin"},
-			EventRoles: []string{"Other"},
 			HTTPMethod: internalHTTP.MethodGet,
 			StatusCode: internalHTTP.StatusForbidden,
 		},
@@ -208,8 +197,8 @@ func TestRoute(t *testing.T) {
 								return http.NewResponse(td.StatusCode, "")
 							},
 							Access: &domain.Access{
-								Roles:    td.Roles,
-								Provider: accessProviderMock,
+								Roles: td.Roles,
+								Key:   "cognito:groups",
 							},
 							Middleware: td.Middleware,
 						},
@@ -226,10 +215,6 @@ func TestRoute(t *testing.T) {
 						},
 					},
 				}
-			}
-
-			accessProviderMock.RolesFn = func(evt map[string]interface{}) ([]string, error) {
-				return td.Roles, td.AccessProviderErr
 			}
 
 			// When

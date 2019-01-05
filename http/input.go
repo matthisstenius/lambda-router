@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/matthisstenius/lambda-router/v3/domain"
+	"github.com/matthisstenius/logger"
 )
 
 // Input for parsed HTTP event
@@ -118,11 +119,31 @@ func (i *Input) ParseBody(out interface{}) error {
 }
 
 // Auth get auth properties based on given AuthProvider
-func (i *Input) Auth(ap domain.AuthProvider) (domain.AuthProperties, error) {
-	if ap == nil {
-		return nil, errors.New("given auth provider is nil")
+func (i *Input) Auth() (*domain.AuthClaims, error) {
+	reqContext := i.event["requestContext"]
+	authorizer, ok := reqContext.(map[string]interface{})["authorizer"]
+	if !ok || authorizer == nil {
+		return nil, errors.New("authorizer index missing in event")
 	}
-	return ap.ParseAuth(i.event)
+
+	claims, ok := authorizer.(map[string]interface{})["claims"]
+	if !ok {
+		return nil, errors.New("claims index missing in authorizer")
+	}
+
+	var authProps map[string]interface{}
+	if value, ok := claims.(string); ok {
+		err := json.Unmarshal([]byte(value), &authProps)
+		if err != nil {
+			logger.WithFields(logger.Fields{
+				"error": err,
+			}).Error("CognitoAuthProvider::ParseAuth() Could not parse claims as JSON")
+			return nil, errors.New("could not parse claims as JSON")
+		}
+	} else {
+		authProps = claims.(map[string]interface{})
+	}
+	return domain.NewAuthClaims(authProps), nil
 }
 
 // RawBody get raw body form event

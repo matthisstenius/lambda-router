@@ -13,22 +13,24 @@ type Router interface {
 
 // Access DTO for roles and provider
 type Access struct {
-	Roles    []string
-	Provider AccessProvider
+	Roles []string
+	Key   string
 }
 
-// AccessProvider used for interpret incoming access parameters in event
-type AccessProvider interface {
-	ParseRoles(evt map[string]interface{}) ([]string, error)
+// AuthClaims for current authenticated user
+type AuthClaims struct {
+	claims map[string]interface{}
 }
 
-// AuthProperties for current authenticated user
-type AuthProperties interface {
-	GetParam(key string) interface{}
-	HasRole(role string) bool
+// NewAuthClaims initializer
+func NewAuthClaims(claims map[string]interface{}) *AuthClaims {
+	return &AuthClaims{claims: claims}
 }
 
-// AuthProvider used for interpret incoming authorization
-type AuthProvider interface {
-	ParseAuth(evt map[string]interface{}) (AuthProperties, error)
+// Get claim by key
+func (ac *AuthClaims) Get(key string) interface{} {
+	if _, ok := ac.claims[key]; !ok {
+		return nil
+	}
+	return ac.claims[key]
 }

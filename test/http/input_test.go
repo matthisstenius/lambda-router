@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/matthisstenius/lambda-router/v3/domain"
 	"github.com/matthisstenius/lambda-router/v3/http"
-	"github.com/matthisstenius/lambda-router/v3/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -401,30 +400,98 @@ func TestRawBody(t *testing.T) {
 	}
 }
 
+//func TestAuth(t *testing.T) {
+//	tests := []struct {
+//		Name         string
+//		AuthProvider domain.AuthProvider
+//		Error        error
+//	}{
+//		{
+//			Name:         "it should succeed",
+//			AuthProvider: new(mock.AuthProvider),
+//		},
+//		{
+//			Name:  "it should handle missing auth provider",
+//			Error: errors.New("given auth provider is nil"),
+//		},
+//	}
+//
+//	for _, td := range tests {
+//		t.Run(td.Name, func(t *testing.T) {
+//			// When
+//			input := http.NewInput(map[string]interface{}{})
+//			_, err := input.Auth(td.AuthProvider)
+//
+//			// Then
+//			assert.Equal(t, td.Error, err)
+//		})
+//	}
+//}
+
 func TestAuth(t *testing.T) {
 	tests := []struct {
-		Name         string
-		AuthProvider domain.AuthProvider
-		Error        error
+		Name  string
+		Event map[string]interface{}
+		Out   *domain.AuthClaims
+		Error error
 	}{
 		{
-			Name:         "it should succeed",
-			AuthProvider: new(mock.AuthProvider),
+			Name: "it should succeed",
+			Event: map[string]interface{}{
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{
+						"claims": map[string]interface{}{
+							"id": "12345",
+						},
+					},
+				},
+			},
+			Out: domain.NewAuthClaims(map[string]interface{}{"id": "12345"}),
 		},
 		{
-			Name:  "it should handle missing auth provider",
-			Error: errors.New("given auth provider is nil"),
+			Name: "it should succeed with claims as JSON",
+			Event: map[string]interface{}{
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{
+						"claims": `{"id": "12345"}`,
+					},
+				},
+			},
+			Out: domain.NewAuthClaims(map[string]interface{}{"id": "12345"}),
+		},
+		{
+			Name: "it should handle missing claims index",
+			Event: map[string]interface{}{
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{},
+				},
+			},
+			Error: errors.New("claims index missing in authorizer"),
+		},
+		{
+			Name: "it should handle invalid claims JSON",
+			Event: map[string]interface{}{
+				"requestContext": map[string]interface{}{
+					"authorizer": map[string]interface{}{
+						"claims": `{"custom:id": invalid"}`,
+					},
+				},
+			},
+			Error: errors.New("could not parse claims as JSON"),
 		},
 	}
 
 	for _, td := range tests {
 		t.Run(td.Name, func(t *testing.T) {
+			// Given
+			input := http.NewInput(td.Event)
+
 			// When
-			input := http.NewInput(map[string]interface{}{})
-			_, err := input.Auth(td.AuthProvider)
+			claims, err := input.Auth()
 
 			// Then
 			assert.Equal(t, td.Error, err)
+			assert.Equal(t, td.Out, claims)
 		})
 	}
 }
